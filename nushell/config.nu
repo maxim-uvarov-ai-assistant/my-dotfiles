@@ -21,6 +21,8 @@ $env.config.cursor_shape.emacs = "Line"
 $env.config.cursor_shape.vi_insert = "Block"
 $env.config.cursor_shape.vi_normal = "Underscore"
 
+$env.config.rm.always_trash = false
+
 $env.config.completions.external.completer = {|spans|
     # if the current command is an alias, get it's expansion
     let expanded_alias = (scope aliases | where name == $spans.0 | get -i 0 | get -i expansion)
