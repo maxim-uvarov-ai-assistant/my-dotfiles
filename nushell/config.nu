@@ -450,8 +450,9 @@ $env.config.keybindings ++= [
 
 def prompt_to_raw_source [] {
     let $closure = {
-        let input = commandline;
-        let hashes = $input | parse -r '(#+)' | get capture0 | sort -r | get 0? | default '';
+        let input = commandline
+        let hashes = $input | parse -r '(#+)' | get capture0 | sort -r | get 0? | default '' # find longest hash
+
         $" r#($hashes)'($input)'#($hashes)" | commandline edit -r $in
     }
 
@@ -693,6 +694,19 @@ $env.config.keybindings ++= [
          keycode: char_d
          mode: [emacs, vi_normal, vi_insert]
          event:  { send: CtrlD }
+    }
+]
+
+$env.config.keybindings ++= [
+    {
+         name: paste_interpolation
+         modifier: alt_shift
+         keycode: "char_'" 
+         mode: [emacs, vi_normal, vi_insert]
+         event:  {
+            send: executehostcommand
+            cmd: r#'commandline edit --insert '$""'; commandline set-cursor ((commandline get-cursor) - 1)'#
+        }
     }
 ]
 
