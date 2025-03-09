@@ -7,4 +7,6 @@ export def copy [] {
     cp ~/.wezterm.lua .
 
     cp ~/.config/ghostty . -r
+
+    cp ~/.config/helix/ . -r
 }
