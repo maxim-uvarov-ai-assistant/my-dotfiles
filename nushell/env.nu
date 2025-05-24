@@ -3,9 +3,9 @@
 # version = "0.99.0"
 
 # create a small sparkline graph
-export def sparkline [ ] {
+export def sparkline [] {
     let $v = $in
-    let TICKS = 2581..2588 | each {into string | char -u $in}
+    let TICKS = 2581..2588 | each { into string | char -u $in }
     let min = $v | math min
     let max = $v | math max
     let range = $max - $min
@@ -14,58 +14,59 @@ export def sparkline [ ] {
 
     if $rel_range > 0.1 and $max > 10 {
         $v
-        | each { |e| $TICKS | get (($e - $min) * $ratio | math round) }
+        | each {|e| $TICKS | get (($e - $min) * $ratio | math round) }
         | str join
-    } else {''}
+    } else { '' }
 }
 
 export def significant [
     n: int = 3 # a number of significant digits
-]: [int -> int, float -> float, duration -> duration] {
+]: [int -> int float -> float duration -> duration] {
     let $input = $in
     let $type = $input | describe
 
     let $num = match $type {
-        'duration' => {$input | into int}
-        _ => {$input}
+        'duration' => { $input | into int }
+        _ => { $input }
     }
 
     let insignif_position = $num
-        | if $in == 0 {
-            0 # it's impoosbile to calculate `math log` from 0, thus 0 errors here
-        } else {
-            math abs
-            | math log 10
-            | math floor
-            | $n - 1 - $in
-        }
-
+    | if $in == 0 {
+        0 # it's impoosbile to calculate `math log` from 0, thus 0 errors here
+    } else {
+        math abs
+        | math log 10
+        | math floor
+        | $n - 1 - $in
+    }
 
     # See the note below the code for an explanation of the construct used.
     let scaling_factor = 10 ** ($insignif_position | math abs)
 
     let res = $num
-        | if $insignif_position > 0 { $in * $scaling_factor } else { $in / $scaling_factor }
-        | math floor
-        | if $insignif_position <= 0 { $in * $scaling_factor } else { $in / $scaling_factor }
+    | if $insignif_position > 0 { $in * $scaling_factor } else { $in / $scaling_factor }
+    | math floor
+    | if $insignif_position <= 0 { $in * $scaling_factor } else { $in / $scaling_factor }
 
     match $type {
-        'duration' => {$res | into duration}
-        'int' => {$res | into int}
-        _ => {$res}
+        'duration' => { $res | into duration }
+        'int' => { $res | into int }
+        _ => { $res }
     }
 }
 
 export def last-10-commands [] {
-    let $curr = $env.CMD_DURATION_MS | into int | if $in == 0 {return} else {}
+    if $nu.history-path =~ '\.txt$' { return }
+
+    let $curr = $env.CMD_DURATION_MS | into int | if $in == 0 { return } else { }
     let $curr_format = $curr
-        | significant 2
-        | into duration --unit 'ms'
-        | into string
-        | parse -r '(?<m>\d+)(?<u>\w+) ?(?<s>[1-9])?'
-        | get 0
-        | update u {str substring ..1}
-        | if $in.s? != '' {$'($in.m).($in.s)($in.u)'} else {$in.m + $in.u}
+    | significant 2
+    | into duration --unit 'ms'
+    | into string
+    | parse -r '(?<m>\d+)(?<u>\w+) ?(?<s>[1-9])?'
+    | get 0
+    | update u { str substring ..1 }
+    | if $in.s? != '' { $'($in.m).($in.s)($in.u)' } else { $in.m + $in.u }
 
     let $list = sqlite3 -csv -header $nu.history-path '
             WITH latest_command AS (
@@ -80,44 +81,43 @@ export def last-10-commands [] {
             ORDER BY id DESC
             LIMIT 10;
         '
-        | from csv
-        | get duration_ms
-        | compact
-        | append $curr
+    | from csv
+    | get duration_ms
+    | compact
+    | append $curr
 
-    let $diff = 1 - (($list | math min | append 1 | math max) / ($list | math max) )
-        | math round --precision 3
-        | $in * 100
-        | into string
-        | str replace -r '(\.\d).*' '$1'
+    let $diff = 1 - (($list | math min | append 1 | math max) / ($list | math max))
+    | math round --precision 3
+    | $in * 100
+    | into string
+    | str replace -r '(\.\d).*' '$1'
 
     $list
     | sparkline
     | $'(ansi grey)±($diff)% ($in) ($curr_format)'
-
 }
 
 def create_left_prompt [] {
     let dir = do -i { $env.PWD | path relative-to $nu.home-path }
-        | match $in {
-            null => $env.PWD
-            '' => '~'
-            $relative_pwd => ([~ $relative_pwd] | path join)
-        }
+    | match $in {
+        null => $env.PWD
+        '' => '~'
+        $relative_pwd => ([~ $relative_pwd] | path join)
+    }
 
     let path_color = (if (is-admin) { ansi red_bold } else { ansi green_italic })
     let separator_color = (if (is-admin) { ansi light_red_bold } else { ansi white })
     let path_segment = $"($path_color)($dir)(ansi reset)"
-        | str replace --all (char path_sep) $"($separator_color)(char path_sep)($path_color)"
+    | str replace --all (char path_sep) $"($separator_color)(char path_sep)($path_color)"
 
     let git_status = git status --branch --porcelain
-        | complete
-        | if $in.exit_code == 0 {
-            $in.stdout
-            | lines
-            | first
-            | str replace -r '^## ' ''
-        } else {''}
+    | complete
+    | if $in.exit_code == 0 {
+        $in.stdout
+        | lines
+        | first
+        | str replace -r '^## ' ''
+    } else { '' }
 
     $'(char nl)(create_right_prompt)'
     | append $'(ansi grey)┏ (ansi reset)($path_segment) ($git_status)'
@@ -127,7 +127,8 @@ def create_left_prompt [] {
 
 def create_right_prompt [] {
     # create a right prompt in magenta with green separators and am/pm underlined
-    let time_segment: closure = {[
+    let time_segment: closure = {
+        [
             (ansi reset)
             (ansi magenta)
             (date now | format date '%H:%M') # try to respect user's locale
@@ -141,7 +142,7 @@ def create_right_prompt [] {
         $'(ansi rb)($env.LAST_EXIT_CODE)'
     } else { "" }
 
-    [ $last_exit_code, (char space), (ansi yellow), (last-10-commands), (char space), ($env.SHLVL? | default 1 | $in - 1)  ]
+    [$last_exit_code (char space) (ansi yellow) (last-10-commands) (char space) ($env.SHLVL? | default 1 | $in - 1)]
     | str join
 }
 
@@ -174,14 +175,14 @@ $env.TRANSIENT_PROMPT_COMMAND = {|| "\n\n" }
 # - converted from a value back to a string when running external commands (to_string)
 # Note: The conversions happen *after* config.nu is loaded
 $env.ENV_CONVERSIONS = {
-  "PATH": {
-    from_string: { |s| $s | split row (char esep) | path expand --no-symlink }
-    to_string: { |v| $v | path expand --no-symlink | str join (char esep) }
-  }
-  "Path": {
-    from_string: { |s| $s | split row (char esep) | path expand --no-symlink }
-    to_string: { |v| $v | path expand --no-symlink | str join (char esep) }
-  }
+    "PATH": {
+        from_string: {|s| $s | split row (char esep) | path expand --no-symlink }
+        to_string: {|v| $v | path expand --no-symlink | str join (char esep) }
+    }
+    "Path": {
+        from_string: {|s| $s | split row (char esep) | path expand --no-symlink }
+        to_string: {|v| $v | path expand --no-symlink | str join (char esep) }
+    }
 }
 
 $env.XDG_DATA_HOME = ($env.HOME | path join ".local" "share")
@@ -195,7 +196,7 @@ $env.NUPM_HOME = ($env.XDG_DATA_HOME | path join "nupm")
 $env.NU_LIB_DIRS = [
     ($nu.default-config-dir | path join 'scripts') # add <nushell-config-dir>/scripts
     ($nu.data-dir | path join 'completions') # default home for nushell completions
-    ]
+]
 
 # Directories to search for plugin binaries when calling register
 # The default for this is $nu.default-config-dir/plugins
@@ -230,6 +231,7 @@ $env.PATH = (
         '/Users/user/go/bin'
         '/Users/user/.local/bin'
         '/Users/user/Applications/WezTerm.app/Contents/MacOS'
+        '/Users/user/Applications/kitty.app/Contents/MacOS'
     ]
     | str trim
     | uniq
@@ -245,11 +247,10 @@ $env.TOPIARY_LANGUAGE_DIR = ($env.XDG_CONFIG_HOME | path join topiary languages)
 # $env.EDITOR = '/opt/homebrew/bin/hx'
 $env.EDITOR = 'hx'
 # $env.PAGER = '/opt/homebrew/bin/bat --paging=always'
-$env.PAGER = 'bat --paging=always'
+# $env.PAGER = 'bat --paging=always'
 
 # $env.OPENAI_API_KEY = (open '/Users/user/.config/openai/openaikey.txt')
 # $env.PALM_API_KEY = (open '/Users/user/.config/palm/palmkey.txt')
-
 
 # mkdir ~/.cache/starship
 # starship init nu | save ~/.cache/starship/init.nu --force
