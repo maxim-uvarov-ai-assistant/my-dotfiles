@@ -35,6 +35,9 @@ enable = true
 max-indent-retain = 0
 max-wrap = 25 # increase value to reduce forced mid-word wrapping
 
+[editor.lsp]
+auto-signature-help = false
+
 [keys.normal]
 # Use system clipboard
 y = ["yank_main_selection_to_clipboard", "yank"]
@@ -81,4 +84,5 @@ right = ["selections", "primary-selection-length", "position", "position-percent
 w = ":set soft-wrap.enable false"
 W = ":set soft-wrap.enable true"
 c = ":pipe correct-english"
+a = ":pipe word-diff apply"
 n = "@%s"
