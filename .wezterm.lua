@@ -45,10 +45,12 @@ config.set_environment_variables = {
 -- config.font = wezterm.font { family = 'Consolas' }
 -- config.font = wezterm.font { family = 'Cascadia Code' }
 -- config.font = wezterm.font { family = 'Iosevka Extended'}
--- 
--- https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/ZedMono.zip
+
+-- https://www.nerdfonts.com/font-downloads
+-- brew install --cask font-zed-mono-nerd-font
 config.font = wezterm.font { family = 'ZedMono Nerd Font', stretch = 'Expanded' }
 -- config.font = wezterm.font { family = 'Departure Mono'}
+
 config.font_size = 17.0
 config.initial_cols = 120
 config.initial_rows = 120
@@ -133,6 +135,7 @@ config.mouse_wheel_scrolls_tabs = false
 config.quick_select_patterns = {
   "[0-9A-F]{64}",
   "bostrom1[a-z0-9]{38}",
+
   "\\[(.*)\\]", --errors of nushell scripts
   -- "\\$.*?\s",
   "(?<=─|╭|┬)([a-zA-Z0-9 _%.-]+?)(?=─|╮|┬)", --headers pattern
