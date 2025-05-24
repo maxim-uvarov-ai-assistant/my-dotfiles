@@ -9,4 +9,6 @@ export def copy [] {
     cp ~/.config/ghostty . -r
 
     cp ~/.config/helix/ . -r
+
+    cp ~/.config/zellij/ . -r
 }
