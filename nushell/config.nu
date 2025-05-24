@@ -6,6 +6,10 @@ $env.config.use_kitty_protocol = true
 
 $env.config.table.header_on_separator = true
 $env.config.table.show_empty = false
+$env.config.table.trim = {
+  methodology: "truncating"
+  truncating_suffix: "..."
+}
 $env.config.footer_mode = "Always"
 
 $env.config.highlight_resolved_externals = true
@@ -16,6 +20,7 @@ $env.config.completions.algorithm = "Fuzzy"
 $env.config.completions.partial = false
 $env.config.completions.quick = false
 $env.config.completions.use_ls_colors = false
+$env.config.completions.case_sensitive = false
 
 $env.config.cursor_shape.emacs = "Line"
 $env.config.cursor_shape.vi_insert = "Block"
@@ -51,6 +56,14 @@ $env.config.hooks = {
                       condition: {|_, after| not ($after | path join 'toolkit.nu' | path exists)}
                       code: "hide toolkit"
                       # code: "overlay hide --keep-env [ PWD ] toolkit"
+                },
+                {
+                      # seems like the hook below is reducndant as env_change presupposes change
+                      # condition: {|_, after| $_ != null}
+                      code: "let pwd = pwd | path basename;
+                        zellij action query-tab-names | lines | where $it =~ $\"^($pwd)\\(·|$)\"
+                        | length | if $in > 0 {$'($pwd)·($in + 1)'} else {$pwd}
+                        | zellij action rename-tab $in"
                 },
 
                 {
@@ -286,7 +299,7 @@ $env.config.menus ++= [
             | select command exit_status cwd
             | where exit_status != 1
             | where cwd == $env.PWD
-            | where command =~ $buffer
+            | where command =~ $"\(?i\)($buffer)"
             | each {|it| {value: $it.command } }
             | reverse
             | uniq
@@ -335,6 +348,45 @@ $env.config.menus ++= [
 $env.config.keybindings ++= [
     {
         name: "current_session_menu"
+        modifier: alt
+        keycode: char_r
+        mode: emacs
+        event: { send: menu name: current_session_menu }
+    }
+]
+
+####
+
+$env.config.menus ++= [
+    {
+        # session menu
+        name: help_commands
+        only_buffer_difference: false
+        marker: "# "
+        type: {
+            layout: list
+            page_size: 10
+        }
+        style: {
+            text: green
+            selected_text: green_reverse
+            description_text: yellow
+        }
+        source: {|buffer, position|
+            history -l
+            | where session_id == (history session)
+            | select command
+            | where command =~ $buffer
+            | each {|it| {value: $it.command } }
+            | reverse
+            | uniq
+        }
+    }
+]
+
+$env.config.keybindings ++= [
+    {
+        name: "help_commands"
         modifier: alt
         keycode: char_r
         mode: emacs
@@ -427,7 +479,7 @@ $env.config.menus ++= [
             | query db "SELECT DISTINCT(cwd) FROM history ORDER BY id DESC"
             | get CWD
             | into string
-            | where $it =~ $buffer
+            | where $it =~ $"\(?i)($buffer)"
             | compact --empty
             | each {
                 if ($in has ' ') { $'"($in)"' } else {}
@@ -752,5 +804,7 @@ use /Users/user/git/nushell-openai/correct-english.nu
 
 use /Users/user/git/nu-cmd-stack/cmd-stack
 use /Users/user/git/npshow-module/npshow
+use /Users/user/git/todo
+use /Users/user/git/nu-critic-markup/commands.nu *
 
 $env.ignore-env-vars = (scope variables | get name)
