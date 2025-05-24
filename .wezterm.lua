@@ -45,6 +45,8 @@ config.set_environment_variables = {
 -- config.font = wezterm.font { family = 'Consolas' }
 -- config.font = wezterm.font { family = 'Cascadia Code' }
 -- config.font = wezterm.font { family = 'Iosevka Extended'}
+-- 
+-- https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/ZedMono.zip
 config.font = wezterm.font { family = 'ZedMono Nerd Font', stretch = 'Expanded' }
 -- config.font = wezterm.font { family = 'Departure Mono'}
 config.font_size = 17.0
