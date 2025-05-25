@@ -4,7 +4,7 @@ export def copy [] {
     glob '~/.config/nushell/{config,env}.nu'
     | each { cp $in nushell }
 
-    cp ~/.wezterm.lua .
+    cp ~/.config/wezterm/ . -r
 
     cp ~/.config/ghostty . -r
 
