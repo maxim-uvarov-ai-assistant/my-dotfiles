@@ -6,7 +6,7 @@ export def copy [] {
 
     cp ~/.config/wezterm/ . -r
 
-    cp ~/.config/ghostty . -r
+    cp ~/.config/ghostty/ . -r
 
     cp ~/.config/helix/ . -r
 
