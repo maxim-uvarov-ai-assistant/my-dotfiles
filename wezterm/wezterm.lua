@@ -24,14 +24,10 @@ if wezterm.config_builder then
   config = wezterm.config_builder()
 end
 
-
--- config.use_ime = false
 -- config.debug_key_events = true
 
-config.default_prog = { '/Users/user/.cargo/bin/nu', '-l', '--execute', 'zellij attach -c prophet' }
--- config.default_prog = { '/opt/homebrew/bin/zellij', 'attach', '-c', 'prophet'}
--- config.default_prog = { '/opt/homebrew/bin/zellij' }
 -- config.default_prog = { '/opt/homebrew/bin/nu', '-l'}
+config.default_prog = { '/Users/user/.cargo/bin/nu', '-l', '--execute', 'zellij attach -c prophet' }
 
 config.check_for_updates = false
 config.set_environment_variables = {
@@ -70,56 +66,6 @@ config.disable_default_key_bindings = true
 config.hide_tab_bar_if_only_one_tab = true
 
 config.keys = {
-  -- {
-  --   key = 'Enter',
-  --   mods = 'ALT',
-  --   action = wezterm.action.DisableDefaultAssignment,
-  -- },
-  -- {
-  --   key = 'q',
-  --   mods = 'SHIFT|CTRL',
-  --   action = wezterm.action.DisableDefaultAssignment,
-  -- },
-  -- {
-  --   key = 'f',
-  --   mods = 'SHIFT|CTRL',
-  --   action = wezterm.action.DisableDefaultAssignment,
-  -- },
-  -- {
-  --   key = 'h',
-  --   mods = 'ALT|CMD',
-  --   action = wezterm.action.DisableDefaultAssignment,
-  -- },
-  -- {
-  --   key = 'Delete',
-  --   mods = '',
-  --   action = act.SendKey { key = 'Delete' },
-  -- },
-  -- {
-  --   key = 'w',
-  --   mods = 'CMD',
-  --   action = wezterm.action.CloseCurrentPane { confirm = false },
-  -- },
-  -- {
-  --   key = 'UpArrow',
-  --   mods = 'CTRL|CMD',
-  --   action = wezterm.action.Search { Regex = '^>' },
-  -- },
-  -- {
-  --   key = "T",
-  --   mods = "CMD|SHIFT",
-  --   action = wezterm.action.SpawnCommandInNewTab {
-  --     cwd = "/Users/user/temp"
-  --   },
-  -- },
-  -- {
-  --   key = 'k',
-  --   mods = 'CMD',
-  --   action = wezterm.action.Multiple {
-  --     wezterm.action.SendKey { key = 'L', mods = 'CTRL' },
-  --     wezterm.action.ClearScrollback 'ScrollbackAndViewport',
-  --   },
-  -- },
   { key = ' ', mods = 'SHIFT|CTRL', action = wezterm.action.QuickSelect },
   { key = 'x', mods = 'SHIFT|CTRL', action = wezterm.action.ActivateCopyMode },
   { key = 'v', mods = 'CMD', action = wezterm.action.PasteFrom 'Clipboard'},
@@ -134,12 +80,12 @@ config.quick_select_patterns = {
   "[0-9A-F]{64}",
   "bostrom1[a-z0-9]{38}",
 
-  "\\[(.*)\\]", --errors of nushell scripts
+  -- like   × Unexpected end of code.
+  -- ╭─[/Users/user/git/nu-goodies/nu-goodies/commands.nu:1946:63] 
+  "─\\[(.*\\:\\d+\\:\\d+)\\]", --path to nushell script with error
   -- "\\$.*?\s",
   "(?<=─|╭|┬)([a-zA-Z0-9 _%.-]+?)(?=─|╮|┬)", --headers pattern
-  -- "(?<=> |❯ )(.+)(?=  )", --commands pattern
-  "(?<=> |❯ )([^ ].+?)(?=  )", --command prompt pattern
-  -- "(?<=│ )([^ ].+?)(?= │)", --list and column values pattern
+  -- "(?<=> )([^ ].+?)(?=  )", --command prompt pattern
   "(?<=│ )([a-zA-Z0-9 _.-]+?)(?= │)", --list and column values pattern
   -- "(?<=^ )(.+?)(?= │)", --visidata pattern
 }
@@ -148,7 +94,5 @@ config.front_end = "WebGpu"
 config.webgpu_power_preference = "HighPerformance"
 config.max_fps = 255
 config.animation_fps = 255
-
-
 
 return config
