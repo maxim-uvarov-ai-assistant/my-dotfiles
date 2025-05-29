@@ -4,6 +4,9 @@ local config = {}
 
 config.native_macos_fullscreen_mode = true
 
+-- go to demo mode for screencasts. Activate in wezterm (out of zellij via)
+-- 'on' | encode base64 | $"\e]1337;SetUserVar=ZEN_MODE=($in)\e"
+-- 'off' | encode base64 | $"\e]1337;SetUserVar=ZEN_MODE=($in)\e"
 wezterm.on('user-var-changed', function(window, pane, name, value)
   local overrides = window:get_config_overrides() or {}
   if name == "ZEN_MODE" then
