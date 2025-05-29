@@ -1,0 +1,13 @@
+[[verbs]]
+invocation = "ok"
+key = "enter"
+leave_broot = true
+execution = ":print_path"
+apply_to = "file"
+
+[[verbs]]
+invocation = "ok"
+key = "alt-enter"
+leave_broot = true
+execution = ":print_path"
+apply_to = "any"
