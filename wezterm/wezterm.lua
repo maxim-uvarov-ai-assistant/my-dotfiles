@@ -44,13 +44,13 @@ config.set_environment_variables = {
 
 -- config.font = wezterm.font { family = 'JetBrainsMono Nerd Font' }
 -- config.font = wezterm.font { family = 'Consolas' }
+-- config.font = wezterm.font { family = 'Departure Mono'}
 -- config.font = wezterm.font { family = 'Cascadia Code' }
 -- config.font = wezterm.font { family = 'Iosevka Extended'}
 
 -- https://www.nerdfonts.com/font-downloads
 -- brew install --cask font-zed-mono-nerd-font
 config.font = wezterm.font { family = 'ZedMono Nerd Font', stretch = 'Expanded' }
--- config.font = wezterm.font { family = 'Departure Mono'}
 
 config.font_size = 17.0
 config.initial_cols = 120
