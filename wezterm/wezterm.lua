@@ -53,8 +53,8 @@ config.set_environment_variables = {
 config.font = wezterm.font { family = 'ZedMono Nerd Font', stretch = 'Expanded' }
 
 config.font_size = 17.0
-config.initial_cols = 120
-config.initial_rows = 120
+config.initial_cols = 220
+config.initial_rows = 220
 config.switch_to_last_active_tab_when_closing_tab = true
 config.skip_close_confirmation_for_processes_named = {
   'bash',
