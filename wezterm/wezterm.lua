@@ -38,7 +38,8 @@ config.default_prog = { '/Users/user/.cargo/bin/nu', '-l', '--execute', 'zellij 
 
 config.check_for_updates = false
 config.set_environment_variables = {
-    XDG_CONFIG_HOME = '/Users/user/.config'
+    XDG_CONFIG_HOME = '/Users/user/.config',
+    XDG_DATA_HOME = '/Users/user/.local/share'
 }
 
 -- config.font = wezterm.font { family = 'JetBrainsMono Nerd Font' }
