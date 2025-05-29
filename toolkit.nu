@@ -11,4 +11,6 @@ export def copy [] {
     cp ~/.config/helix/ . -r
 
     cp ~/.config/zellij/ . -r
+
+    cp ~/.config/broot/ . -r
 }
