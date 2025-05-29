@@ -2,12 +2,6 @@ local wezterm = require 'wezterm'
 
 local config = {}
 
--- local mux = wezterm.mux
--- wezterm.on("gui-startup", function(cmd)
---     local tab, pane, window = mux.spawn_window(cmd or {})
---     window:gui_window():toggle_fullscreen()
--- end)
-
 config.native_macos_fullscreen_mode = true
 
 wezterm.on('user-var-changed', function(window, pane, name, value)
