@@ -570,6 +570,7 @@ def 'fzf-hist-all-reverse-append' [] {
         | str replace -ar $'(char lp)^|(char nul)(char rp)\d+?($index_sep)' '$1'
         | str trim --char (char nul)
         | str replace -ar (char nul) $';(char nl)'
+        | str replace -r $';(char nl)$' ''
         | str replace -a $entry_sep '    '
         | str trim
         | commandline edit --insert $in
@@ -610,6 +611,7 @@ def 'fzf-hist-current-commandline-prefix-replace' [] {
         | decode utf-8
         | str trim --char (char nl)
         | str replace -ar (char nul) $';(char nl)'
+        | str replace -r $';(char nl)$' ''
         | str replace -a "\u{200B}" '    '
         | str trim
         | if ($in | is-empty) {} else {
@@ -658,6 +660,7 @@ def 'fzf-hist-with-sessions-that-include-current-entry' [] {
         | decode utf-8
         | str trim --char (char nl)
         | str replace -ar (char nul) $';(char nl)'
+        | str replace -r $';(char nl)$' ''
         | str replace -a "\u{200B}" '    '
         | str trim
         | commandline edit -a $in
