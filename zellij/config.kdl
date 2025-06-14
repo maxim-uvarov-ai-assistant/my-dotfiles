@@ -178,11 +178,11 @@ keybinds clear-defaults=true {
         //     };
         // }
         //
-        bind "Super y" {
-            LaunchOrFocusPlugin "file:~/.config/zellij/plugins/zellij_forgot.wasm" {
-                floating false
-            }
-        }
+        // bind "Super y" {
+        //     LaunchOrFocusPlugin "file:~/.config/zellij/plugins/zellij_forgot.wasm" {
+        //         floating false
+        //     }
+        // }
 
         bind "Super alt l" {
 //            Write 0x1B; // escape button
