@@ -477,7 +477,7 @@ $env.config.menus ++= [
         source: {|buffer, position|
             open $nu.history-path
             | query db "SELECT DISTINCT(cwd) FROM history ORDER BY id DESC"
-            | get CWD
+            | get cwd
             | into string
             | where $it =~ $"\(?i)($buffer)"
             | compact --empty

@@ -144,6 +144,13 @@
             external: "vd {file}"
             leave_broot: false
         }
+        {
+            invocation: pbcopy
+            shortcut: pb
+            leave_broot: true
+            external: ["sh" "-c" "echo '{file}' | pbcopy"]
+        }
+
     ]
 
 }
