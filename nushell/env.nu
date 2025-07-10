@@ -230,6 +230,8 @@ $env.PATH = (
         '/usr/local/go/bin'
         '/Users/user/go/bin'
         '/Users/user/.local/bin'
+        '/Users/user/.config/nvm'
+        '/Users/user/.config/nvm/versions/node/v22.17.0/bin'
         '/Users/user/Applications/WezTerm.app/Contents/MacOS'
         '/Users/user/Applications/kitty.app/Contents/MacOS'
     ]
@@ -243,18 +245,6 @@ $env.TOPIARY_LANGUAGE_DIR = ($env.XDG_CONFIG_HOME | path join topiary languages)
 # To load from a custom file you can use:
 # source ($nu.default-config-dir | path join 'custom.nu')
 
-# zoxide init nushell | save -f ~/.zoxide.nu
-# $env.EDITOR = '/opt/homebrew/bin/hx'
 $env.EDITOR = 'hx'
-# $env.PAGER = '/opt/homebrew/bin/bat --paging=always'
-# $env.PAGER = 'bat --paging=always'
 
-# $env.OPENAI_API_KEY = (open '/Users/user/.config/openai/openaikey.txt')
-# $env.PALM_API_KEY = (open '/Users/user/.config/palm/palmkey.txt')
-
-# mkdir ~/.cache/starship
-# starship init nu | save ~/.cache/starship/init.nu --force
-
-# source /Users/user/Downloads/init.nu
-# source ~/.config/nushell/nu_image_plugin.nu
-# source ~/.config/nushell/nu_image_plugin.nu
+alias claude = /Users/user/.claude/local/claude
