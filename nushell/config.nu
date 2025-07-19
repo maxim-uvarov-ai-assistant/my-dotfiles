@@ -63,6 +63,7 @@ $env.config.hooks = {
                       code: "let pwd = pwd | path basename;
                         zellij action query-tab-names | lines | where $it =~ $\"^($pwd)\\(·|$)\"
                         | length | if $in > 0 {$'($pwd)·($in + 1)'} else {$pwd}
+                        | str replace -r '^-+' ''
                         | zellij action rename-tab $in"
                 },
 
@@ -192,35 +193,6 @@ $env.config.keybindings ++= [
     }
 ]
 
-$env.config.menus ++= [
-        {
-            # List all unique successful commands
-            name: all_history_menu
-            only_buffer_difference: true
-            marker: "? "
-            type: {
-                layout: list
-                page_size: 10
-            }
-            style: {
-                text: green
-                selected_text: green_reverse
-            }
-            source: {|buffer, position|
-                history
-                | select command exit_status
-                | where exit_status != 1
-                | where command =~ $buffer
-                | each {|it| {value: $it.command } }
-                | reverse
-                | uniq
-            }
-        }
-]
-
-
-
-
 $env.config.keybindings ++= [
     {
         name: move_to__start
@@ -277,85 +249,6 @@ $env.config.keybindings ++= [
         event: { send: menu name: vars_menu }
     }
 ]
-
-####
-
-$env.config.menus ++= [
-    {
-        # List all unique successful commands in the current directory
-        name: pwd_history_menu
-        only_buffer_difference: true
-        marker: "? "
-        type: {
-            layout: list
-            page_size: 25
-        }
-        style: {
-            text: green
-            selected_text: green_reverse
-        }
-        source: {|buffer, position|
-            history
-            | select command exit_status cwd
-            | where exit_status != 1
-            | where cwd == $env.PWD
-            | where command =~ $"\(?i\)($buffer)"
-            | each {|it| {value: $it.command } }
-            | reverse
-            | uniq
-        }
-    }
-]
-$env.config.keybindings ++= [
-    {
-        name: "pwd history"
-        modifier: control
-        keycode: char_h
-        mode: emacs
-        event: { send: menu name: pwd_history_menu }
-    }
-]
-
-####
-
-$env.config.menus ++= [
-    {
-        # session menu
-        name: current_session_menu
-        only_buffer_difference: false
-        marker: "# "
-        type: {
-            layout: list
-            page_size: 10
-        }
-        style: {
-            text: green
-            selected_text: green_reverse
-            description_text: yellow
-        }
-        source: {|buffer, position|
-            history -l
-            | where session_id == (history session)
-            | select command
-            | where command =~ $buffer
-            | each {|it| {value: $it.command } }
-            | reverse
-            | uniq
-        }
-    }
-]
-
-$env.config.keybindings ++= [
-    {
-        name: "current_session_menu"
-        modifier: alt
-        keycode: char_r
-        mode: emacs
-        event: { send: menu name: current_session_menu }
-    }
-]
-
-####
 
 $env.config.menus ++= [
     {
