@@ -196,6 +196,17 @@ keybinds clear-defaults=true {
             };
 //            WriteChars "rl";
         }
+
+        bind "Super e" {
+            Run "hx" "prompt.md" {
+                close_on_exit true
+                floating true
+                x "2%"
+                y "2%"
+                width "98%"
+                height "98%"
+            };
+        }
     }
     shared_except "locked" "renametab" "renamepane" {
         bind "Ctrl g" { SwitchToMode "locked"; }
