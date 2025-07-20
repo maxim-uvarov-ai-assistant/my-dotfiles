@@ -1,357 +1,139 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# ▐ NUSHELL CONFIGURATION - BEAUTIFIED & NEWBIE-FRIENDLY
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# This configuration is designed for easy copy-pasting and understanding.
+# Each section is self-contained and clearly documented.
+#
+# 📍 Quick Navigation:
+#   • Basic Configuration
+#   • Keyboard Shortcuts
+#   • Core Keybindings
+#   • Menu Systems
+#   • FZF Integration
+#   • Tool Integrations
+#   • External Dependencies
+#
+# 🎯 Dependencies Required:
+#   - carapace (completions)
+#   - fzf (history search)
+#   - broot (file browser)
+#   - zellij (terminal multiplexer)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# ▐ BASIC CONFIGURATION
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# History Configuration
 $env.config.history.file_format = "Sqlite"
 $env.config.history.isolation = true
 $env.config.history.max_size = 5000000
 
+# Terminal & Display Settings
 $env.config.use_kitty_protocol = true
-
 $env.config.table.header_on_separator = true
 $env.config.table.show_empty = false
 $env.config.table.trim = {
-  methodology: "truncating"
-  truncating_suffix: "..."
+    methodology: "truncating"
+    truncating_suffix: "..."
 }
 $env.config.footer_mode = "Always"
-
 $env.config.highlight_resolved_externals = true
 $env.config.render_right_prompt_on_last_line = true
 $env.config.show_banner = false
 
+# Completions Configuration
 $env.config.completions.algorithm = "Fuzzy"
 $env.config.completions.partial = false
 $env.config.completions.quick = false
 $env.config.completions.use_ls_colors = false
 $env.config.completions.case_sensitive = false
 
+# Cursor Shape Configuration
 $env.config.cursor_shape.emacs = "Line"
 $env.config.cursor_shape.vi_insert = "Block"
 $env.config.cursor_shape.vi_normal = "Underscore"
 
+# Safety Settings
 $env.config.rm.always_trash = false
 
-$env.config.completions.external.completer = {|spans|
-    # if the current command is an alias, get it's expansion
-    let expanded_alias = (scope aliases | where name == $spans.0 | get -i 0 | get -i expansion)
+# ═══════════════════════════════════════════════════════════════════════════════
+# ▐ CORE KEYBINDINGS
+# ═══════════════════════════════════════════════════════════════════════════════
 
-    # overwrite
-    let spans = (
-        if $expanded_alias != null  {
-        # put the first word of the expanded alias first in the span
-            $spans | skip 1 | prepend ($expanded_alias | split row " " | take 1)
-        } else {
-            $spans
-        }
-    )
-
-    carapace $spans.0 nushell ...$spans
-    | from json
-}
-
-$env.config.hooks = {
-        pre_prompt: [{ null }] # run before the prompt is shown
-        pre_execution: [{ null }] # run before the repl input is run
-        env_change: {
-
-            PWD: [
-                {
-                      condition: {|_, after| not ($after | path join 'toolkit.nu' | path exists)}
-                      code: "hide toolkit"
-                      # code: "overlay hide --keep-env [ PWD ] toolkit"
-                },
-                {
-                      # seems like the hook below is reducndant as env_change presupposes change
-                      # condition: {|_, after| $_ != null}
-                      code: "let pwd = pwd | path basename;
-                        zellij action query-tab-names | lines | where $it =~ $\"^($pwd)\\(·|$)\"
-                        | length | if $in > 0 {$'($pwd)·($in + 1)'} else {$pwd}
-                        | str replace -r '^-+' ''
-                        | zellij action rename-tab $in"
-                },
-
-                {
-                      condition: {|_, after| $after | path join 'toolkit.nu' | path exists}
-                      code: "
-                      print $'(ansi default_underline)(ansi default_bold)toolkit(ansi reset) module (ansi green_italic)detected(ansi reset)...'
-                      print $'(ansi yellow_italic)activating(ansi reset) (ansi default_underline)(ansi default_bold)toolkit(ansi reset) module with `(ansi default_dimmed)(ansi default_italic)use toolkit.nu(ansi reset)`'
-                      use toolkit.nu
-                      # overlay use --prefix toolkit.nu
-                      "
-                },
-
-                {|before, _|
-                    if $before == null {
-                        let file = ($nu.home-path | path join ".local" "share" "nushell" "startup-times.nuon")
-                        if not ($file | path exists) {
-                            mkdir ($file | path dirname)
-                            touch $file
-                        }
-                        let ver = (version)
-                        open $file | append {
-                            date: (date now)
-                            time: $nu.startup-time
-                            build: ($ver.build_rust_channel)
-                            allocator: ($ver.allocator)
-                            version: ($ver.version)
-                            commit: ($ver.commit_hash)
-                            build_time: ($ver.build_time)
-                            bytes_loaded: (view files | get size | math sum)
-                        } | collect { save --force $file }
-                    }
-                }
-            ]
-
-        }
-
-        display_output: {
-            metadata access {|meta|
-                match $meta.content_type? {
-                    "application/x-nuscript" | "application/x-nuon" | "text/x-nushell" => { nu-highlight },
-                    "application/json" => { ^bat --language=json --color=always --style=plain --paging=never },
-                    _ => {},
-                }
-            }
-            | if (term size).columns >= 100 { table -e } else { table }
-        }
-
-        # run to display the output of a pipeline
-        command_not_found: { null } # return an error message when a command is not found
-    }
-
-# I use this overlay to hide from the environment helper commands (like `broot-source`)
-# overlay new config-helpers
+# ───────────────────────────────────────────────────────────────────────────────
+# Smart End-of-Line Navigation with History Hints
+# Shortcut: Ctrl+E
+# ───────────────────────────────────────────────────────────────────────────────
 
 $env.config.keybindings ++= [
-    {
-        name: ide_completion_menu
-        modifier: control
-#            keycode: space
-        keycode: char_n
-        mode: [emacs vi_normal vi_insert]
-        event: {
-            until: [
-                { send: menu name: ide_completion_menu }
-                { send: menunext }
-                { edit: complete }
-            ]
-        }
-    }
     {
         name: move_to_line_end_or_take_history_hint
         modifier: control
         keycode: char_e
-        mode: [emacs, vi_normal, vi_insert]
+        mode: [emacs vi_normal vi_insert]
         event: {
             until: [
-                { send: historyhintcomplete }
+                {send: historyhintcomplete}
                 # {edit: movetolineend}
-                { edit: movetoend }
+                {edit: movetoend}
             ]
         }
     }
+]
+
+# ───────────────────────────────────────────────────────────────────────────────
+# Enhanced Cut to End
+# Shortcut: Ctrl+K
+# ───────────────────────────────────────────────────────────────────────────────
+
+$env.config.keybindings ++= [
     {
         name: cut_line_to_end
         modifier: control
         keycode: char_k
         mode: emacs
-#            event: { edit: cuttolineend }
-            event: { edit: cuttoend }
+        #       event: { edit: cuttolineend } # this is the default nushell shortcut
+        event: {edit: cuttoend}
     }
+]
+
+# ───────────────────────────────────────────────────────────────────────────────
+# Swap Adjacent Characters
+# Shortcut: Ctrl+Alt+T
+# ───────────────────────────────────────────────────────────────────────────────
+
+$env.config.keybindings ++= [
     {
         name: swap_graphemes
-#        modifier: control
+        #       modifier: control # this is the default nushell shortcut
         modifier: control_alt
         keycode: char_t
         mode: emacs
-            event: { edit: swapgraphemes }
-    }
-        # The following bindings with `*system` events require that Nushell has
-        # been compiled with the `system-clipboard` feature.
-        # If you want to use the system clipboard for visual selection or to
-        # paste directly, uncomment the respective lines and replace the version
-        # using the internal clipboard.
-    {
-        name: copy_selection
-        modifier: control_shift
-        keycode: char_c
-        mode: emacs
-        event: { edit: copyselection }
-            # event: { edit: copyselectionsystem }
-    }
-    {
-        name: cut_selection
-        modifier: control_shift
-        keycode: char_x
-        mode: emacs
-        event: { edit: cutselection }
-            # event: { edit: cutselectionsystem }
-    }
-    {
-        name: select_all
-        modifier: control_shift
-        keycode: char_a
-        mode: emacs
-        event: { edit: selectall }
+        event: {edit: swapgraphemes}
     }
 ]
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# ▐ MENU SYSTEMS
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# ───────────────────────────────────────────────────────────────────────────────
+# Working Directories Menu - Quick navigation to recent directories
+# Shortcut: Alt+Shift+R
+# Usage: Browse directories from command history, Enter to cd
+# ───────────────────────────────────────────────────────────────────────────────
 
 $env.config.keybindings ++= [
     {
-        name: move_to__start
-        modifier: control
-        keycode: char_a
-        mode: [emacs, vi_normal, vi_insert]
-        event: {edit: movetostart}
-    }
-    {
-        name: insert_newline
-        modifier: alt
-        keycode: enter
-        mode: [emacs vi_normal vi_insert]
-            event: { edit: insertnewline }
-    }
-    {
-        name: paste
-        modifier: control_shift
-        keycode: char_v
-        mode: emacs
-        event: { edit: pastecutbufferbefore }
-    }
-]
-
-$env.config.menus ++= [
-    {
-        name: vars_menu
-        only_buffer_difference: true
-        marker: "# "
-        type: {
-            layout: list
-            page_size: 10
-        }
-        style: {
-            text: green
-            selected_text: green_reverse
-            description_text: yellow
-        }
-        source: {|buffer, position|
-            scope variables
-            | where name not-in ($env.ignore-env-vars? | default [])
-            | sort-by var_id -r
-            | where name =~ $buffer
-            | each {|it| {value: $it.name description: $it.type} }
-        }
-    }
-]
-$env.config.keybindings ++= [
-    {
-        name: vars_menu
-        modifier: alt
-        keycode: char_o
-        mode: [emacs, vi_normal, vi_insert]
-        event: { send: menu name: vars_menu }
-    }
-]
-
-$env.config.menus ++= [
-    {
-        # session menu
-        name: help_commands
-        only_buffer_difference: false
-        marker: "# "
-        type: {
-            layout: list
-            page_size: 10
-        }
-        style: {
-            text: green
-            selected_text: green_reverse
-            description_text: yellow
-        }
-        source: {|buffer, position|
-            history -l
-            | where session_id == (history session)
-            | select command
-            | where command =~ $buffer
-            | each {|it| {value: $it.command } }
-            | reverse
-            | uniq
-        }
-    }
-]
-
-$env.config.keybindings ++= [
-    {
-        name: "help_commands"
-        modifier: alt
+        name: working_dirs_cd_menu
+        modifier: alt_shift
         keycode: char_r
         mode: emacs
-        event: { send: menu name: current_session_menu }
+        event: {send: menu name: working_dirs_cd_menu}
     }
 ]
-
-####
-
-$env.config.menus ++= [
-    {
-        # session menu
-        name: pipe_completions_menu
-        only_buffer_difference: false # Search is done on the text written after activating the menu
-        marker: "# "
-        type: {
-            layout: list
-            page_size: 25
-        }
-        style: {
-            text: green
-            selected_text: green_reverse
-            description_text: yellow
-        }
-        source: {|buffer, position|
-
-            let esc_regex: closure = {|i|
-                let $input = $i
-                let $regex_special_symbols = [
-                    '\\', '\.', '\^', '\$',
-                    '\*', '\+', '\?',
-                    '\{', '\}', '\(', '\)',
-                    '\[', '\]', '\|', '\/'
-                ]
-
-                $regex_special_symbols
-                | str replace '\' ''
-                | zip $regex_special_symbols
-                | reduce -f $input {|i acc| $acc | str replace -a $i.0 $i.1}
-            }
-
-            let $segments = $buffer | split row -r '(\s\|\s)|\(|;|(\{\|\w\| )'
-            let $last_segment = $segments | last
-            let $last_segment_esc = do $esc_regex $last_segment
-            let $smt = $buffer | str replace -r $'($last_segment_esc)$' ' '
-
-            history
-            | get command
-            | uniq
-            | where $it =~ $last_segment_esc
-            | each {
-                str replace -a (char nl) ' '
-                | str replace -r $'.*($last_segment_esc)' $last_segment
-                | $"($smt)($in)"
-            }
-            | reverse
-            | uniq
-            | each {|it| {value: $it}}
-        }
-    }
-]
-$env.config.keybindings ++= [
-    {
-        name: "pipe_completions_menu"
-        modifier: shift_alt
-        keycode: char_s
-        mode: emacs
-        event: { send: menu name: pipe_completions_menu }
-    }
-]
-
-####
 
 $env.config.menus ++= [
     {
@@ -367,7 +149,7 @@ $env.config.menus ++= [
             text: green
             selected_text: green_reverse
         }
-        source: {|buffer, position|
+        source: {|buffer position|
             open $nu.history-path
             | query db "SELECT DISTINCT(cwd) FROM history ORDER BY id DESC"
             | get cwd
@@ -375,23 +157,77 @@ $env.config.menus ++= [
             | where $it =~ $"\(?i)($buffer)"
             | compact --empty
             | each {
-                if ($in has ' ') { $'"($in)"' } else {}
+                if ($in has ' ') {
+                    $'"($in)"'
+                    | if (commandline) == '' { $'cd ($in)' } else { }
+                } else { }
                 | {value: $in}
             }
         }
     }
 ]
+
+# ───────────────────────────────────────────────────────────────────────────────
+# Variables Menu - Browse and insert shell variables
+# Shortcut: Alt+O
+# Usage: Type part of variable name to filter, Enter to insert
+#
+# Note: $env.ignore-env-vars is initialized at the end of this configuration file
+# ───────────────────────────────────────────────────────────────────────────────
+
 $env.config.keybindings ++= [
     {
-        name: working_dirs_cd_menu
-        modifier: alt_shift
-        keycode: char_r
-        mode: emacs
-        event: { send: menu name: working_dirs_cd_menu}
+        name: vars_menu
+        modifier: alt
+        keycode: char_o
+        mode: [emacs]
+        event: {send: menu name: vars_menu}
     }
 ]
 
-####
+$env.config.menus ++= [
+    {
+        name: vars_menu
+        only_buffer_difference: true
+        marker: "# "
+        type: {
+            layout: list
+            page_size: 10
+        }
+        style: {
+            text: green
+            selected_text: green_reverse
+            description_text: yellow
+        }
+        source: {|buffer position|
+            scope variables
+            # Filter out variables captured at config initialization (see end of file)
+            | where name not-in ($env.ignore-env-vars? | default [])
+            | sort-by var_id -r
+            | where name =~ $buffer
+            | each {|it| {value: $it.name description: $it.type} }
+        }
+    }
+]
+
+# ───────────────────────────────────────────────────────────────────────────────
+# Convert Command Line to Raw String Literal
+# Shortcut: Ctrl+V
+# Usage: Wraps current command in raw string format for easy copying
+# ───────────────────────────────────────────────────────────────────────────────
+
+$env.config.keybindings ++= [
+    {
+        name: prompt_to_raw_string
+        modifier: control
+        keycode: char_v
+        mode: [emacs vi_normal vi_insert]
+        event: {
+            send: executehostcommand
+            cmd: (prompt_to_raw_source)
+        }
+    }
+]
 
 def prompt_to_raw_source [] {
     let $closure = {
@@ -403,22 +239,48 @@ def prompt_to_raw_source [] {
 
     view source $closure | lines | skip | drop | to text
 }
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# ▐ FZF INTEGRATION SUITE
+# ═══════════════════════════════════════════════════════════════════════════════
+# Advanced history search and navigation using fzf
+# Dependencies: fzf (brew install fzf)
+
+# Base FZF parameters for consistent history function behavior
+$env.FZF_HISTORY_BASE = [
+    '--cycle'
+    '--read0'
+    '--print0'
+    '--layout=reverse'
+    '--multi'
+    '--height=70%'
+    '--wrap'
+    "--wrap-sign=\t↳ "
+    '--tiebreak=begin,length,chunk'
+    '--with-shell=sh -c'
+    '--preview-window=bottom:30%:wrap'
+    '--preview=echo {2} | nu -n --no-std-lib --stdin -c "nu-highlight" '
+]
+
+# ───────────────────────────────────────────────────────────────────────────────
+# FZF Multi-Select History Insertion
+# Shortcut: Ctrl+F
+# Usage: Search and select multiple history entries to insert
+# Features: Syntax highlighting, sorting toggle, multi-select
+# ───────────────────────────────────────────────────────────────────────────────
+
 $env.config.keybindings ++= [
     {
-        name: prompt_to_raw_string
+        name: fzf_history_entries
         modifier: control
-        keycode: char_v
-        mode: [emacs , vi_normal, vi_insert]
+        keycode: char_f
+        mode: [emacs vi_normal vi_insert]
         event: {
             send: executehostcommand
-            cmd: (prompt_to_raw_source)
+            cmd: (fzf-hist-all-reverse-append)
         }
     }
 ]
-
-####
-
-# make command to execute fzf menu, to ask what to do with current commandline
 
 def 'fzf-hist-all-reverse-append' [] {
     let closure = {
@@ -441,22 +303,15 @@ def 'fzf-hist-all-reverse-append' [] {
             WHERE row_num = 1
             ORDER BY id DESC;
         '
-        | each {$"($in.id)($index_sep)($in.command_line)"}
+        | each { $"($in.id)($index_sep)($in.command_line)" }
         | str join (char nul)
-        | ($in | fzf --cycle --read0 --print0
-            --bind='ctrl-r:toggle-sort'
-            --bind='ctrl-f:toggle-sort'
-            --delimiter=$'($index_sep)'
-            --height=70%
-            --layout=reverse
-            --multi
-            --preview-window='bottom:30%:wrap'
-            --preview=" echo {2} | nu -n --no-std-lib --stdin -c 'nu-highlight' "
-            --scheme='history'
-            --with-shell='bash -c '
-            --wrap
-            --wrap-sign "\t↳ "
-            -n2..
+        | ^fzf ...(
+            $env.FZF_HISTORY_BASE ++ [
+                '--bind=ctrl-r:toggle-sort'
+                '--bind=ctrl-f:toggle-sort'
+                $'--delimiter=($index_sep)'
+                '-n2..'
+            ]
         )
         | decode utf-8
         | str trim --char (char nl)
@@ -471,15 +326,23 @@ def 'fzf-hist-all-reverse-append' [] {
 
     view source $closure | lines | skip | drop | to text
 }
+
+# ───────────────────────────────────────────────────────────────────────────────
+# FZF Prefix History Search and Replace
+# Shortcut: Alt+F
+# Usage: Search history with current line as prefix, replace entire line
+# Features: Prefix filtering, fuzzy search, line replacement
+# ───────────────────────────────────────────────────────────────────────────────
+
 $env.config.keybindings ++= [
     {
-        name: fzf_history_entries
-        modifier: control
+        name: fzf_history
+        modifier: alt
         keycode: char_f
-        mode: [emacs , vi_normal, vi_insert]
+        mode: [emacs vi_normal vi_insert]
         event: {
             send: executehostcommand
-            cmd: (fzf-hist-all-reverse-append)
+            cmd: (fzf-hist-current-commandline-prefix-replace)
         }
     }
 ]
@@ -500,30 +363,46 @@ def 'fzf-hist-current-commandline-prefix-replace' [] {
         | get command_line
         | each { str replace -a '    ' "\u{200B}" }
         | str join (char nul)
-        | fzf --cycle --scheme=history --read0 --print0 --tiebreak=begin,length,chunk --layout=reverse --multi --with-shell='sh -c' --preview="echo {..}" --preview-window='bottom:3:wrap' --height=70% --query=$'^(commandline | str replace -a "| " "")' --wrap --header="ctrl-r to disable sort" --header-first --bind='ctrl-r:toggle-sort' --bind='alt-f:toggle-sort'
+        | ^fzf ...(
+            $env.FZF_HISTORY_BASE ++ [
+                $'--query=^(commandline | str replace -a "| " "")'
+                '--header=ctrl-r to disable sort'
+                '--header-first'
+                '--bind=ctrl-r:toggle-sort'
+                '--bind=alt-f:toggle-sort'
+            ]
+        )
         | decode utf-8
         | str trim --char (char nl)
         | str replace -ar (char nul) $';(char nl)'
         | str replace -r $';(char nl)$' ''
         | str replace -a "\u{200B}" '    '
         | str trim
-        | if ($in | is-empty) {} else {
-            commandline edit --replace $in
-            | commandline set-cursor -e
+        | if ($in | is-empty) { } else {
+            commandline edit --replace $in;
+            commandline set-cursor -e
         }
     }
 
     view source $closure | lines | skip | drop | to text
 }
+
+# ───────────────────────────────────────────────────────────────────────────────
+# FZF Context-Aware Session Search
+# Shortcut: Alt+Ctrl+F
+# Usage: Search sessions that contain similar commands to current input
+# Features: Context awareness, session correlation, command appending
+# ───────────────────────────────────────────────────────────────────────────────
+
 $env.config.keybindings ++= [
     {
-        name: fzf_history
-        modifier: alt
+        name: fzf_history_sessions
+        modifier: alt_control
         keycode: char_f
-        mode: [emacs , vi_normal, vi_insert]
+        mode: [emacs vi_normal vi_insert]
         event: {
             send: executehostcommand
-            cmd: (fzf-hist-current-commandline-prefix-replace)
+            cmd: (fzf-hist-with-sessions-that-include-current-entry)
         }
     }
 ]
@@ -549,7 +428,11 @@ def 'fzf-hist-with-sessions-that-include-current-entry' [] {
         | get command_line
         | each { str replace -a '    ' "\u{200B}" }
         | str join (char nul)
-        | fzf --cycle --no-sort --read0 --print0 --tiebreak=begin,length,chunk --layout=reverse --multi --with-shell='sh -c' --preview="echo {..}" --preview-window='bottom:3:wrap' --height=70% --wrap
+        | ^fzf ...(
+            $env.FZF_HISTORY_BASE ++ [
+                '--no-sort'
+            ]
+        )
         | decode utf-8
         | str trim --char (char nl)
         | str replace -ar (char nul) $';(char nl)'
@@ -562,29 +445,50 @@ def 'fzf-hist-with-sessions-that-include-current-entry' [] {
 
     view source $closure | lines | skip | drop | to text
 }
-$env.config.keybindings ++= [
-    {
-        name: fzf_history_sessions
-        modifier: alt_control
-        keycode: char_f
-        mode: [emacs , vi_normal, vi_insert]
-        event: {
-            send: executehostcommand
-            cmd: (fzf-hist-with-sessions-that-include-current-entry)
-        }
-    }
-]
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# ▐ TOOL INTEGRATIONS
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# ───────────────────────────────────────────────────────────────────────────────
+# Copy Command to Clipboard (macOS)
+# Shortcut: Ctrl+Alt+C
+# Usage: Copies current command line to clipboard and adds confirmation
+# ───────────────────────────────────────────────────────────────────────────────
 
 $env.config.keybindings ++= [
     {
         name: copy_command
         modifier: control_alt
         keycode: char_c
-        mode: [emacs, vi_normal, vi_insert]
+        mode: [emacs]
         event: {
             send: executehostcommand
+            # macos version command below
             cmd: "commandline | pbcopy; commandline edit --append ' # copied'"
         }
+    }
+]
+
+# ───────────────────────────────────────────────────────────────────────────────
+# Broot File Browser Integration
+# Shortcut: Ctrl+T
+# Dependencies: broot (cargo install broot)
+# Usage: Opens broot file browser, inserts selected path at cursor
+# ───────────────────────────────────────────────────────────────────────────────
+
+$env.config.keybindings ++= [
+    {
+        name: broot_path_completion
+        modifier: control
+        keycode: char_t
+        mode: [emacs]
+        event: [
+            {
+                send: ExecuteHostCommand
+                cmd: (broot-source)
+            }
+        ]
     }
 ]
 
@@ -594,22 +498,22 @@ def broot-source [] {
         let $pos = commandline get-cursor
 
         let $element = ast --flatten $cl
-            | flatten
-            | where start <= $pos and end >= $pos
-            | get content.0 -i
-            | default ''
+        | flatten
+        | where start <= $pos and end >= $pos
+        | get content.0 -i
+        | default ''
 
         let $path_exp = $element
-            | str trim -c '"'
-            | str trim -c "'"
-            | str trim -c '`'
-            | if $in =~ '^~' { path expand } else {}
-            | if ($in | path exists) {} else {'.'}
+        | str trim -c '"'
+        | str trim -c "'"
+        | str trim -c '`'
+        | if $in =~ '^~' { path expand } else { }
+        | if ($in | path exists) { } else { '.' }
 
         let $config_path = $env.XDG_CONFIG_HOME? | default '~/.config' | path join broot select.toml
 
         let $broot_path = ^broot $path_exp --conf $config_path
-            | if ' ' in $in { $"`($in)`" } else {}
+        | if ' ' in $in { $"`($in)`" } else { }
 
         if $path_exp == '.' {
             commandline edit --insert $broot_path
@@ -620,87 +524,127 @@ def broot-source [] {
 
     view source $broot_closure | lines | skip | drop | to text
 }
-$env.config.keybindings ++= [
-    {
-         name: broot_path_completion
-         modifier: control
-         keycode: char_t
-         mode: [emacs, vi_normal, vi_insert]
-         event: [
-            {
-                send: ExecuteHostCommand
-                cmd: (broot-source)
-            }
-        ]
-    }
-]
+
+# ───────────────────────────────────────────────────────────────────────────────
+# Exit Shell with Super+D (macOS Cmd+D)
+# Shortcut: Super+D (Cmd+D)
+# Usage: Quick exit from shell
+# ───────────────────────────────────────────────────────────────────────────────
 
 $env.config.keybindings ++= [
     {
-         name: exit_on_cmdD
-         modifier: super
-         keycode: char_d
-         mode: [emacs, vi_normal, vi_insert]
-         event:  { send: CtrlD }
+        name: exit_on_cmdD
+        modifier: super
+        keycode: char_d
+        mode: [emacs]
+        event: {send: CtrlD}
     }
 ]
 
+# ───────────────────────────────────────────────────────────────────────────────
+# String Interpolation Template
+# Shortcut: Alt+Shift+'
+# Usage: Inserts $"" template with cursor positioned inside quotes
+# ───────────────────────────────────────────────────────────────────────────────
+
 $env.config.keybindings ++= [
     {
-         name: paste_interpolation
-         modifier: alt_shift
-         keycode: "char_'" 
-         mode: [emacs, vi_normal, vi_insert]
-         event:  {
+        name: paste_interpolation
+        modifier: alt_shift
+        keycode: "char_'"
+        mode: [emacs]
+        event: {
             send: executehostcommand
             cmd: r#'commandline edit --insert '$""'; commandline set-cursor ((commandline get-cursor) - 1)'#
         }
     }
 ]
 
-# cmd stack keybindings
+# ───────────────────────────────────────────────────────────────────────────────
+# Smart Pipe Completions Menu - Intelligent command continuation
+# Shortcut: Shift+Alt+S
+# Usage: Suggests completions based on command context and history
+# ───────────────────────────────────────────────────────────────────────────────
+
 $env.config.keybindings ++= [
     {
-        modifier: control_alt
-        keycode: char_k
-        mode: [emacs, vi_normal, vi_insert]
-        event: { send: executehostcommand cmd: 'cmd-stack next' }
-    }
-    {
-        modifier: control_alt
-        keycode: char_j
-        mode: [emacs, vi_normal, vi_insert]
-        event: { send: executehostcommand cmd: 'cmd-stack prev' }
+        name: pipe_completions_menu
+        modifier: shift_alt
+        keycode: char_s
+        mode: emacs
+        event: {send: menu name: pipe_completions_menu}
     }
 ]
 
-# overlay hide config-helpers
+$env.config.menus ++= [
+    {
+        # session menu
+        name: pipe_completions_menu
+        only_buffer_difference: false # Search is done on the text written after activating the menu
+        marker: "# "
+        type: {
+            layout: list
+            page_size: 25
+        }
+        style: {
+            text: green
+            selected_text: green_reverse
+            description_text: yellow
+        }
+        source: {|buffer position|
 
-# overlay new zellij
-# alias core_config = config nu
-# alias 'config nu' = zellij run --cwd $nu.default-config-dir --name nu-config --close-on-exit -- nu -e 'hx $nu.config-path'
-# alias 'config nu' = ^zellij action new-tab --name nu-config --layout /Users/user/.config/zellij/layouts/config_nu.kdl
-# source /Users/user/git/nu_scripts/sourced/shorcuts.nu
-# source /Users/user/git/nu_scripts/sourced/standard_4002.nu
-# source /Users/user/git/nu_scripts_upstream/custom-completions/zellij/zellij-completions.nu
-# $env.CARAPACE_BRIDGES = 'zsh'
+             let esc_regex: closure = {|i|
+                let $input = $i
+                let $regex_special_symbols = [
+                    '\\'
+                    '\.'
+                    '\^'
+                    '\$'
+                    '\*'
+                    '\+'
+                    '\?'
+                    '\{'
+                    '\}'
+                    '\('
+                    '\)'
+                    '\['
+                    '\]'
+                    '\|'
+                    '\/'
+                ]
 
-overlay new others
-source /Users/user/.config/broot/launcher/nushell/br
-source /Users/user/git/nu_scripts/sourced/standard_4002_aliasses.nu
-source /Users/user/git/my_nu_completions/my_nu_completions.nu
+                $regex_special_symbols
+                | str replace '\' ''
+                | zip $regex_special_symbols
+                | reduce -f $input {|i acc| $acc | str replace -a $i.0 $i.1 }
+            }
 
-overlay use /Users/user/git/nu-goodies/nu-goodies
-overlay use /Users/user/git/nushell-kv/kv/ --prefix as kv
-overlay use /Users/user/git/dotnu/dotnu --prefix
-overlay use /Users/user/git/numd/numd --prefix
+            let $segments = $buffer | split row -r '(\s\|\s)|\(|;|(\{\|\w\| )'
+            let $last_segment = $segments | last
+            let $last_segment_esc = do $esc_regex $last_segment
+            let $smt = $buffer | str replace -r $'($last_segment_esc)$' ' '
 
-use /Users/user/git/nushell-openai/openai.nu ask
-use /Users/user/git/nushell-openai/correct-english.nu
+            history
+            | get command
+            | uniq
+            | where $it =~ $last_segment_esc
+            | each {
+                str replace -a (char nl) ' '
+                | str replace -r $'.*($last_segment_esc)' $last_segment
+                | $"($smt)($in)"
+            }
+            | reverse
+            | uniq
+            | each {|it| {value: $it} }
+        }
+    }
+]
 
-use /Users/user/git/nu-cmd-stack/cmd-stack
-use /Users/user/git/npshow-module/npshow
-use /Users/user/git/todo
-use /Users/user/git/nu-critic-markup/commands.nu *
+# Custom module imports are handled in the autoload/ directory
 
+# Initialize list of environment variables to exclude from the Alt+O variables menu
+# This captures the baseline state before loading additional modules
+# 
+# mind that there is another invocation in
+# /Users/user/.config/nushell/autoload/zzz_ignore_vars.nu
 $env.ignore-env-vars = (scope variables | get name)
