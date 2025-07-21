@@ -4,7 +4,7 @@ export def copy [] {
     glob '~/.config/nushell/{config,env}.nu'
     | each { cp $in nushell }
 
-    cp ~/.config/nushell/autoload/ . -r
+    cp ~/.config/nushell/autoload/ nushell -r
 
     cp ~/.config/wezterm/ . -r
 
