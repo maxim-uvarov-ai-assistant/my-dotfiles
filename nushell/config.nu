@@ -159,7 +159,6 @@ $env.config.menus ++= [
             | each {
                 if ($in has ' ') {
                     $'"($in)"'
-                    | if (commandline) == '' { $'cd ($in)' } else { }
                 } else { }
                 | {value: $in}
             }
@@ -500,7 +499,7 @@ def broot-source [] {
         let $element = ast --flatten $cl
         | flatten
         | where start <= $pos and end >= $pos
-        | get content.0 -i
+        | get content.0 -o
         | default ''
 
         let $path_exp = $element
@@ -515,10 +514,14 @@ def broot-source [] {
         let $broot_path = ^broot $path_exp --conf $config_path
         | if ' ' in $in { $"`($in)`" } else { }
 
+        let rel_path = $broot_path
+        | path relative-to (pwd)
+        | if $in =~ '^..' { $broot_path } else { }
+
         if $path_exp == '.' {
-            commandline edit --insert $broot_path
+            commandline edit --insert $rel_path
         } else {
-            $cl | str replace $element $broot_path | commandline edit -r $in
+            $cl | str replace $element $rel_path | commandline edit -r $in
         }
     }
 
