@@ -513,10 +513,11 @@ def broot-source [] {
 
         let $broot_path = ^broot $path_exp --conf $config_path
         | if ' ' in $in { $"`($in)`" } else { }
+        | path expand
 
         let rel_path = $broot_path
         | path relative-to (pwd)
-        | if $in =~ '^..' { $broot_path } else { }
+        | if $in =~ '^\.\.' { $broot_path } else { }
 
         if $path_exp == '.' {
             commandline edit --insert $rel_path
