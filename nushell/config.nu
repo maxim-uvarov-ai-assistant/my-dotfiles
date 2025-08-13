@@ -229,7 +229,7 @@ $env.config.keybindings ++= [
 ]
 
 def prompt_to_raw_source [] {
-    let $closure = {
+    let closure = {
         let input = commandline
         let hashes = $input | parse -r '(#+)' | get capture0 | sort -r | get 0? | default '' # find longest hash
 
@@ -283,8 +283,8 @@ $env.config.keybindings ++= [
 
 def 'fzf-hist-all-reverse-append' [] {
     let closure = {
-        let $index_sep = "\u{200C}\t"
-        let $entry_sep = "\u{200B}"
+        let index_sep = "\u{200C}\t"
+        let entry_sep = "\u{200B}"
 
         open $nu.history-path
         | query db '
@@ -492,26 +492,26 @@ $env.config.keybindings ++= [
 ]
 
 def broot-source [] {
-    let $broot_closure = {
-        let $cl = commandline
-        let $pos = commandline get-cursor
+    let broot_closure = {
+        let cl = commandline
+        let pos = commandline get-cursor
 
-        let $element = ast --flatten $cl
+        let element = ast --flatten $cl
         | flatten
         | where start <= $pos and end >= $pos
         | get content.0 -o
         | default ''
 
-        let $path_exp = $element
+        let path_exp = $element
         | str trim -c '"'
         | str trim -c "'"
         | str trim -c '`'
         | if $in =~ '^~' { path expand } else { }
         | if ($in | path exists) { } else { '.' }
 
-        let $config_path = $env.XDG_CONFIG_HOME? | default '~/.config' | path join broot select.toml
+        let config_path = $env.XDG_CONFIG_HOME? | default '~/.config' | path join broot select.toml
 
-        let $broot_path = ^broot $path_exp --conf $config_path
+        let broot_path = ^broot $path_exp --conf $config_path
         | if ' ' in $in { $"`($in)`" } else { }
         | path expand
 
@@ -598,8 +598,8 @@ $env.config.menus ++= [
         source: {|buffer position|
 
              let esc_regex: closure = {|i|
-                let $input = $i
-                let $regex_special_symbols = [
+                let input = $i
+                let regex_special_symbols = [
                     '\\'
                     '\.'
                     '\^'
@@ -623,23 +623,21 @@ $env.config.menus ++= [
                 | reduce -f $input {|i acc| $acc | str replace -a $i.0 $i.1 }
             }
 
-            let $segments = $buffer | split row -r '(\s\|\s)|\(|;|(\{\|\w\| )'
-            let $last_segment = $segments | last
-            let $last_segment_esc = do $esc_regex $last_segment
-            let $smt = $buffer | str replace -r $'($last_segment_esc)$' ' '
+            let segments = $buffer | split row -r '(\s\|\s)|\(|;|(\{\|\w\| )'
+            let last_segment = $segments | last
+            let last_segment_length = $last_segment | str length
+            let last_segment_esc = do $esc_regex $last_segment
+            let smt = $buffer | str replace -r $'($last_segment_esc)$' ' '
 
             history
             | get command
             | uniq
             | where $it =~ $last_segment_esc
-            | each {
-                str replace -a (char nl) ' '
-                | str replace -r $'.*($last_segment_esc)' $last_segment
-                | $"($smt)($in)"
-            }
+            | str replace -a (char nl) ' '
+            | str replace -r $'.*($last_segment_esc)' $last_segment
             | reverse
             | uniq
-            | each {|it| {value: $it} }
+            | each {|it| {value: $it span: {start: ($position - $last_segment_length) end: ($position)}} }
         }
     }
 ]
