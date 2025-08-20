@@ -1,6 +1,6 @@
 export def main [] { }
 
-export def copy [] {
+export def pull [] {
     glob '~/.config/nushell/{config,env}.nu'
     | each { cp $in nushell }
 
