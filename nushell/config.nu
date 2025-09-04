@@ -586,58 +586,24 @@ $env.config.menus ++= [
         name: pipe_completions_menu
         only_buffer_difference: false # Search is done on the text written after activating the menu
         marker: "# "
-        type: {
-            layout: list
-            page_size: 25
-        }
-        style: {
-            text: green
-            selected_text: green_reverse
-            description_text: yellow
-        }
+        type: { layout: list page_size: 25 }
+        style: { text: green selected_text: green_reverse description_text: yellow }
         source: {|buffer position|
-
-             let esc_regex: closure = {|i|
-                let input = $i
-                let regex_special_symbols = [
-                    '\\'
-                    '\.'
-                    '\^'
-                    '\$'
-                    '\*'
-                    '\+'
-                    '\?'
-                    '\{'
-                    '\}'
-                    '\('
-                    '\)'
-                    '\['
-                    '\]'
-                    '\|'
-                    '\/'
-                ]
-
-                $regex_special_symbols
-                | str replace '\' ''
-                | zip $regex_special_symbols
-                | reduce -f $input {|i acc| $acc | str replace -a $i.0 $i.1 }
-            }
-
-            let segments = $buffer | split row -r '(\s\|\s)|\(|;|(\{\|\w\| )'
-            let last_segment = $segments | last
+            let last_segment = $buffer | split row -r '(\s\|\s)|\(|;|(\{\|\w\| )' | last
             let last_segment_length = $last_segment | str length
-            let last_segment_esc = do $esc_regex $last_segment
-            let smt = $buffer | str replace -r $'($last_segment_esc)$' ' '
+
+            let last_segment_escaped = '\.^$*+?{}()[]|/' | split chars # regex special symbols
+            | reduce -f $last_segment {|i| str replace -a $i $'\($i)' }
 
             history
             | get command
             | uniq
-            | where $it =~ $last_segment_esc
-            | str replace -a (char nl) ' '
-            | str replace -r $'.*($last_segment_esc)' $last_segment
+            | where $it =~ $last_segment_escaped
+            | str replace -a (char nl) ' ' # might cause troubles?
+            | str replace -r $'.*($last_segment_escaped)' $last_segment
             | reverse
             | uniq
-            | each {|it| {value: $it span: {start: ($position - $last_segment_length) end: ($position)}} }
+            | each {|it| { value: $it span: { start: ($position - $last_segment_length) end: ($position) } } }
         }
     }
 ]
