@@ -8,15 +8,15 @@ source /Users/user/.config/broot/launcher/nushell/br
 
 # Nushell Modules
 overlay use /Users/user/git/nu-goodies/nu-goodies
-overlay use /Users/user/git/nushell-kv/kv --prefix
+# overlay use /Users/user/git/nushell-kv/kv --prefix
 overlay use /Users/user/git/dotnu/dotnu --prefix
 overlay use /Users/user/git/numd/numd --prefix
 
 # Specialized Tools
-use /Users/user/git/nushell-openai/openai.nu ask
-use /Users/user/git/nushell-openai/correct-english.nu
+# use /Users/user/git/nushell-openai/openai.nu ask
+# use /Users/user/git/nushell-openai/correct-english.nu
 
-use /Users/user/git/npshow-module/npshow
-use /Users/user/git/todo
-use /Users/user/git/nu-critic-markup/commands.nu *
+# use /Users/user/git/npshow-module/npshow
+# use /Users/user/git/todo
+# use /Users/user/git/nu-critic-markup/commands.nu *
 
