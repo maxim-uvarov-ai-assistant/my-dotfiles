@@ -26,8 +26,7 @@ export def push-to-local-configs [
 ] {
     open configs_list.csv
     | update full-path { path expand --no-symlink }
-    | insert dirname { $in.full-path | path dirname }
-    | group-by dirname
+    | group-by { $in.full-path | path dirname }
     | items {|dirname v|
         if ($dirname | path exists) { $v } else {
             if $create_dirs { mkdir $dirname; $v }
@@ -35,5 +34,5 @@ export def push-to-local-configs [
     }
     | compact
     | flatten
-    | each {cp $in.path-in-repo $in.full-path}
+    | each { cp $in.path-in-repo $in.full-path }
 }
