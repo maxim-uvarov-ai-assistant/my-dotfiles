@@ -29,15 +29,15 @@ export def push-to-local-configs [] {
         | path basename
         | path join **/*
         | glob $in --no-dir
-        | each {
-            path relative-to (pwd)
-            | path split
-            | skip
-            | path join
-        }
     }
     | flatten
-    | insert destination {|i| $i.dot-config | path join $i.source }
+    | insert destination {|i|
+        $i.source
+        | path relative-to (pwd)
+        | path split
+        | skip
+        | prepend $i.dot-config
+        | path join
+    }
     | each {|i| cp $i.source $i.destination }
-    | print $'files copied ($in | length)'
 }
