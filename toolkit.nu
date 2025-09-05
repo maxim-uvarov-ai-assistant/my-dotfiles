@@ -1,18 +1,20 @@
 export def main [] { }
 
-export def copy [] {
+export def pull [] {
     glob '~/.config/nushell/{config,env}.nu'
     | each { cp $in nushell }
 
     cp ~/.config/nushell/autoload/ nushell -r
 
-    cp ~/.config/wezterm/ . -r
-
-    cp ~/.config/helix/ . -r
-
-    cp ~/.config/zellij/ . -r
-
-    cp ~/.config/ghostty/ . -r
-
-    cp ~/.config/broot/ . -r
+    [
+        '~/.config/wezterm/'
+        '~/.config/helix/'
+        '~/.config/zellij/'
+        '~/.config/ghostty/'
+        '~/.config/broot/'
+    ]
+    | each {
+        path expand
+        | if ($in | path exists) { cp $in . -r }
+    }
 }
