@@ -21,23 +21,19 @@ export def pull-from-local-configs [] {
     }
 }
 
-export def push-to-local-configs [] {
-    $dirs
-    | wrap dot-config
-    | insert source {|i|
-        $i.dot-config
-        | path basename
-        | path join **/*
-        | glob $in --no-dir
+export def push-to-local-configs [
+    --create-dirs # in case of missing directories - create them in place
+] {
+    open configs_list.csv
+    | update full-path { path expand --no-symlink }
+    | insert dirname { $in.full-path | path dirname }
+    | group-by dirname
+    | items {|dirname v|
+        if ($dirname | path exists) { $v } else {
+            if $create_dirs { mkdir $dirname; $v }
+        }
     }
+    | compact
     | flatten
-    | insert destination {|i|
-        $i.source
-        | path relative-to (pwd)
-        | path split
-        | skip
-        | prepend $i.dot-config
-        | path join
-    }
-    | each {|i| cp $i.source $i.destination }
+    | each {cp $in.path-in-repo $in.full-path}
 }
