@@ -29,3 +29,4 @@ claude/commands/optimize-claude-md.md,~/.claude/commands/optimize-claude-md.md
 claude/agents/agent-markdown-task-master.md,~/.claude/agents/agent-markdown-task-master.md
 claude/agents/agent-commit-git.md,~/.claude/agents/agent-commit-git.md
 claude/agents/agent-simple-reviewer.md,~/.claude/agents/agent-simple-reviewer.md
+hammerspoon/init.lua,~/.hammerspoon/init.lua
