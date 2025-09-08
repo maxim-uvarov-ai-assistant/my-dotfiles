@@ -11,11 +11,21 @@ $env.config.hooks = {
             {
                 # seems like the hook below is reducndant as env_change presupposes change
                 # condition: {|_, after| $_ != null}
-                code: "let pwd = pwd | path basename;
-                        zellij action query-tab-names | lines | where $it =~ $\"^($pwd)\\(·|$)\"
-                        | length | if $in > 0 {$'($pwd)·($in + 1)'} else {$pwd}
-                        | str replace -r '^-+' ''
-                        | zellij action rename-tab $in"
+                code: "if $env.ZELLIJ_SESSION_NAME? != null {
+                            let pwd = pwd | path basename;
+                            let tabs = zellij action query-tab-names
+                            | lines
+
+                            let length = $tabs
+                            | where $it =~ $\"^($pwd)\\(·|$)\"
+                            | length
+
+                            if $length > 0 and ($tabs | last) =~ 'Tab #\\d+' {
+                                $'($pwd)·($length + 1)'
+                            } else {$pwd}
+                            | str replace -r '^-+' ''
+                            | zellij action rename-tab $in
+                        }"
             }
 
             {
@@ -24,7 +34,6 @@ $env.config.hooks = {
                       print $'(ansi default_underline)(ansi default_bold)toolkit(ansi reset) module (ansi green_italic)detected(ansi reset)...'
                       print $'(ansi yellow_italic)activating(ansi reset) (ansi default_underline)(ansi default_bold)toolkit(ansi reset) module with `(ansi default_dimmed)(ansi default_italic)use toolkit.nu(ansi reset)`'
                       use toolkit.nu
-                      help modules | where name == toolkit | select name commands.name | flatten | each {$'($in.name) ($in.'commands.name')'} | to text | print
                       # overlay use --prefix toolkit.nu
                       "
             }
