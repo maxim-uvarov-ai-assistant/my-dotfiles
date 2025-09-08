@@ -109,20 +109,17 @@ show_selection_mark: true
 # Setting "list":"always" may be useful on a link to a directory
 #  (they're otherwise not entered by broot unless selected)
 #
-# special_paths: {
-#     "/media" : {
-#         list: "never"
-#         sum: "never"
-#     }
-#     "~/.config": { "show": "always" }
-#     "trav": {
-#         show: always
-#         list: "always",
-#         sum: "never"
-#     }
-#     # "~/useless": { "show": "never" }
-#     # "~/my-link-I-want-to-explore": { "list": "always" }
-# }
+special_paths: {
+    "~/Applications" : {
+        list: "never"
+        sum: "never"
+    }
+    "~/Library" : {
+        list: "never"
+        sum: "never"
+    }
+    "~/.config": { "show": "always" }
+}
 
 ###############################################################
 # Quit on last cancel
