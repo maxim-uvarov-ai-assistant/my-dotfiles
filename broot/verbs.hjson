@@ -147,13 +147,13 @@
         {
             invocation: pbcopy
             shortcut: pb
-            leave_broot: true
+            leave_broot: false
             external: ["sh" "-c" "echo '{file}' | sed \"s|$PWD/||\" | pbcopy"]
         }
         {
             invocation: pbfull
             shortcut: pbf
-            leave_broot: true
+            leave_broot: false
             external: ["sh" "-c" "echo '{file}' | pbcopy"]
         }
 
