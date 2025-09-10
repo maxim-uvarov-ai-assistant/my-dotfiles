@@ -2,12 +2,12 @@
 
 mkdir todo
 
-cd todo
+# cd todo
 
-let date = date now | format date '%+' | str substring ..9 | str replace --all -r '[^\dT]' '' 
+let date = date now | format date '%+' | str substring ..9 | str replace --all -r '[^\dT]' ''
 
-let index = glob $'($date)*'
-| if ($in | is-empty) {1} else {
+let index = glob $'todo/($date)*'
+| if ($in | is-empty) { 1 } else {
     let list = $in;
 
     $list
@@ -22,10 +22,10 @@ let index = glob $'($date)*'
     | math max
 }
 
-let path = $'($date)-($index).md'
+let path = $'todo/($date)-($index).md'
 
 hx $path
 
-cd ..
+# cd ..
 
-if (ls 'todo' | is-empty) {rm 'todo'}
+if (ls 'todo' | is-empty) { rm 'todo' }
