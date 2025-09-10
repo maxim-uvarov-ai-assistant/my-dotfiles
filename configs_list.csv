@@ -18,7 +18,7 @@ nushell/autoload/standard_4002_aliasses.nu,~/.config/nushell/autoload/standard_4
 nushell/autoload/zzz_ignore_vars.nu,~/.config/nushell/autoload/zzz_ignore_vars.nu
 nushell/config.nu,~/.config/nushell/config.nu
 nushell/env.nu,~/.config/nushell/env.nu
-wezterm/wezterm.lua,~/.config/wezterm/wezterm.lua
+wezterm/wezterm.lua,~/.wezterm.lua
 zellij/config.kdl,~/.config/zellij/config.kdl
 zellij/todo-hx.nu,~/.config/zellij/todo-hx.nu
 claude/CLAUDE.md,~/.claude/CLAUDE.md
