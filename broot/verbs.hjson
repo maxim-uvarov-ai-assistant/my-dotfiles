@@ -156,6 +156,18 @@
             leave_broot: false
             external: ["sh" "-c" "echo '{file}' | pbcopy"]
         }
+        {
+            invocation: pbcopy
+            shortcut: pbq
+            leave_broot: true
+            external: ["sh" "-c" "echo '{file}' | sed \"s|$PWD/||\" | pbcopy"]
+        }
+        {
+            invocation: pbfull
+            shortcut: pbfq
+            leave_broot: true
+            external: ["sh" "-c" "echo '{file}' | pbcopy"]
+        }
 
     ]
 
