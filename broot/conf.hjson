@@ -119,6 +119,7 @@ special_paths: {
         sum: "never"
     }
     "~/.config": { "show": "always" }
+    ".claude": {  "show": "always" }
 }
 
 ###############################################################
