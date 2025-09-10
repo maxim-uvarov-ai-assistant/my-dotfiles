@@ -197,6 +197,17 @@ keybinds clear-defaults=true {
 //            WriteChars "rl";
         }
 
+        bind "Super alt b" {
+            Run "broot" {
+                close_on_exit true
+                floating true
+                x "2%"
+                y "2%"
+                width "98%"
+                height "98%"
+            };
+        }
+
         bind "Super e" {
             Run "/Users/user/.config/zellij/todo-hx.nu" {
                 close_on_exit true
