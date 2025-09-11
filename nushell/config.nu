@@ -115,6 +115,30 @@ $env.config.keybindings ++= [
     }
 ]
 
+$env.config.keybindings ++= [
+    {
+        name: swap_graphemes
+        modifier: alt
+        keycode: Up
+        mode: emacs
+        event: {send: PreviousHistory}
+    }
+]
+
+# ───────────────────────────────────────────────────────────────────────────────
+# Navigate history
+# Shortcut: Alt+Up/down
+# ───────────────────────────────────────────────────────────────────────────────
+$env.config.keybindings ++= [
+    {
+        name: swap_graphemes
+        modifier: alt
+        keycode: Down
+        mode: emacs
+        event: {send: NextHistory}
+    }
+]
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # ▐ MENU SYSTEMS
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -587,8 +611,8 @@ $env.config.menus ++= [
         name: pipe_completions_menu
         only_buffer_difference: false # Search is done on the text written after activating the menu
         marker: "# "
-        type: { layout: list page_size: 25 }
-        style: { text: green selected_text: green_reverse description_text: yellow }
+        type: {layout: list page_size: 25}
+        style: {text: green selected_text: green_reverse description_text: yellow}
         source: {|buffer position|
             let last_segment = $buffer | split row -r '(\s\|\s)|\(|;|(\{\|\w\| )' | last
             let last_segment_length = $last_segment | str length
@@ -604,7 +628,7 @@ $env.config.menus ++= [
             | str replace -r $'.*($last_segment_escaped)' $last_segment
             | reverse
             | uniq
-            | each {|it| { value: $it span: { start: ($position - $last_segment_length) end: ($position) } } }
+            | each {|it| {value: $it span: {start: ($position - $last_segment_length) end: ($position)}} }
         }
     }
 ]
