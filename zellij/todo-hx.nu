@@ -4,25 +4,9 @@ mkdir todo
 
 # cd todo
 
-let date = date now | format date '%+' | str substring ..9 | str replace --all -r '[^\dT]' ''
+let date = date now | format date '%+' | str substring ..15 | str replace --all -r '[^\dT]' '' | str replace T '-'
 
-let index = glob $'todo/($date)*'
-| if ($in | is-empty) { 1 } else {
-    let list = $in;
-
-    $list
-    | sort
-    | last
-    | parse -r '\d{8}-(\d+)'
-    | get capture0?.0?
-    | default 0
-    | into int
-    | $in + 1
-    | append ($list | length | $in + 1)
-    | math max
-}
-
-let path = $'todo/($date)-($index).md'
+let path = $'todo/($date).md'
 
 hx $path
 
