@@ -47,5 +47,6 @@ $local_configs
 | prepend ($ignored_paths | select full-path status --optional)
 | append $candidates
 | uniq-by full-path
+| sort-by full-path
 | default '' status
 | save -f local-configs.csv
