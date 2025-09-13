@@ -1,11 +1,15 @@
 export def main [] { }
 
+def open-configs [] {
+    open configs_list.csv
+    | update full-path { path expand --no-symlink }
+}
+
 export def pull-from-local-configs [
     --check-local-files-exist
 ] {
-    open configs_list.csv
+    open-configs
     | update path-in-repo { path expand --no-symlink }
-    | update full-path { path expand --no-symlink }
     | where {|i| $i.full-path | path exists }
     | group-by { $in.path-in-repo | path dirname }
     | items {|dirname v|
@@ -19,8 +23,7 @@ export def pull-from-local-configs [
 export def push-to-local-configs [
     --create-dirs # in case of missing directories - create them in place
 ] {
-    open configs_list.csv
-    | update full-path { path expand --no-symlink }
+    open-configs
     | group-by { $in.full-path | path dirname }
     | items {|dirname v|
         if ($dirname | path exists) { $v } else {
@@ -33,8 +36,7 @@ export def push-to-local-configs [
 }
 
 export def fill-candidates [] {
-    let configs = open configs_list.csv
-    | update full-path { path expand }
+    let configs = open-config
 
     let local_configs = 'local-configs.csv'
     | if ($in | path exists) { open } else { [] }
