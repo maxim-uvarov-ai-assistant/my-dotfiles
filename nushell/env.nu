@@ -234,8 +234,10 @@ $env.PATH = (
         '/Users/user/.config/nvm/versions/node/v22.17.0/bin'
         '/Users/user/Applications/WezTerm.app/Contents/MacOS'
         '/Users/user/Applications/kitty.app/Contents/MacOS'
+        '/Users/user/.claude/local/'
     ]
     | str trim
+    | where {|i| $i | path exists }
     | uniq
 )
 
