@@ -5,6 +5,11 @@ def open-configs [] {
     | update full-path { path expand --no-symlink }
 }
 
+def open-local-configs [] {
+    'local-configs.csv'
+    | if ($in | path exists) { open } else { [] }
+}
+
 export def pull-from-local-configs [
     --check-local-files-exist
 ] {
@@ -38,8 +43,7 @@ export def push-to-local-configs [
 export def fill-candidates [] {
     let configs = open-config
 
-    let local_configs = 'local-configs.csv'
-    | if ($in | path exists) { open } else { [] }
+    let local_configs = open-local-configs
 
     let ignored_paths = $local_configs
     | where status? in ['ignore']
