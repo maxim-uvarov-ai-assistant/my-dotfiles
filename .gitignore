@@ -1,4 +1,2 @@
-zellij/plugins
-broot/skins
 .DS_Store
-local-configs.csv
+paths-local.csv
