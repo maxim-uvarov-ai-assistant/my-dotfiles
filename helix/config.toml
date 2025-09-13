@@ -90,11 +90,3 @@ t = ":pipe $\"<user>\n($in)</user>\""
 s = ":pipe-to r#'<selected-text file=\"%sh{realpath %{buffer_name}}\" lines=\"%{selection_line_start}-%{selection_line_end}\">%{selection}</selected-text>'# | pbcopy"
 A = ":append-output try {nu -c r######'%{selection}'######} catch {|e| $e} | table | into string | lines | each {$\"# => ($in)\"} | if (r####'%{selection}'#### =~ \"\n$\") {} else {prepend ''} | to text"
 a = ":append-output let lines = try {nu -c r######'%{selection}'######} catch {|e| $e} | table | into string | lines; let len = $lines | length; $lines | if $len > 5 {first 5 | append $'... and ($len - 5) more lines'} else {} | each {$\"# => ($in)\"} | if (r####'%{selection}'#### =~ \"\n$\") {} else {prepend ''} | to text"
-
-# ls ~
-# ==> ╭─#──┬────────────────name────────────────┬──type───┬──size───┬───modified───╮
-# ==> │  0 │ /Users/user/Applications           │ dir     │   288 B │ 2 weeks ago  │
-# ==> │  1 │ /Users/user/Desktop                │ dir     │   256 B │ 2 days ago   │
-# ==> │  2 │ /Users/user/Documents              │ dir     │    96 B │ 3 months ago │
-# ==> │  3 │ /Users/user/Downloads              │ dir     │   320 B │ a week ago   │
-# ==> ... and 18 more lines
