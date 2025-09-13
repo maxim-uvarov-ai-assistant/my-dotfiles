@@ -41,7 +41,7 @@ export def push-to-local-configs [
 }
 
 export def fill-candidates [] {
-    let configs = open-config
+    let configs = open-configs
 
     let local_configs = open-local-configs
 
@@ -90,5 +90,5 @@ export def fill-candidates [] {
     | uniq-by full-path
     | sort-by full-path
     | default '' status
-    | save -f local-configs.csv
+    | save -f paths-local.csv
 }
