@@ -16,10 +16,10 @@ export def pull-from-local-configs [
     --check-local-files-exist
 ] {
     open-local-configs
-    | where status =~ '^update'
+    | where status =~ '^update|ignore'
     | append (open-configs)
     | uniq-by path-in-repo
-    | update path-in-repo { path expand --no-symlink }
+    | where status? != ignore
     | where {|i| $i.full-path | path exists }
     | group-by { $in.path-in-repo | path dirname }
     | items {|dirname v|
@@ -34,9 +34,12 @@ export def push-to-local-configs [
     --create-dirs # in case of missing directories - create them in place
 ] {
     open-local-configs
-    | where status =~ '^update'
+    | where status =~ '^update|ignore'
+    | update path-in-repo { path expand --no-symlink }
     | append (open-configs)
     | uniq-by path-in-repo
+    | where status? != ignore
+    | where {|i| $i.path-in-repo | is-not-empty }
     | group-by { $in.full-path | path dirname }
     | items {|dirname v|
         if ($dirname | path exists) { $v } else {
