@@ -6,7 +6,7 @@ def open-configs [] {
 }
 
 def open-local-configs [] {
-    'local-configs.csv'
+    'paths-local.csv'
     | if ($in | path exists) { open } else { [] }
 }
 
