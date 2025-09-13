@@ -618,8 +618,9 @@ $env.config.menus ++= [
             let last_segment = $buffer | split row -r '(\s\|\s)|\(|;|(\{\|\w\| )' | last
             let last_segment_length = $last_segment | str length
 
-            let last_segment_escaped = '\.^$*+?{}()[]|/' | split chars # regex special symbols
-            | reduce -f $last_segment {|i| str replace -a $i $'\($i)' }
+            let regex = '\.^$*+?{}()[]|/' | split chars | each { $'\($in)' } | str join '|' | $"\(($in))"
+
+            let last_segment_escaped = $last_segment | str replace --all --regex $regex '\$1'
 
             history
             | get command
