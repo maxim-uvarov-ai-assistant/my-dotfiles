@@ -6,8 +6,7 @@ let local_configs = 'local-configs.csv'
 
 let ignored_paths = $local_configs
 | where status? in ['ignore']
-| get full-path
-| where {|i| $i | path exists }
+| where {|i| $i.full-path | path exists }
 | upsert path-type {|i| $i.full-path | path type }
 
 let $ignored_files = $ignored_paths
@@ -36,11 +35,15 @@ let candidates = $configs
     | try { ls $in | get name --optional }
 }
 | flatten
-| where $it !~ $ignored_folders_regex
+| if $ignored_folders_regex == '^' { } else {
+    where $it !~ $ignored_folders_regex
+}
 | where $it not-in $configs.full-path
 | wrap full-path
 
 $local_configs
+| where full-path? !~ $ignored_folders_regex and status? not-in ['ignore']
+| append $ignored_paths
 | append $candidates
 | uniq-by full-path
 | default '' status
