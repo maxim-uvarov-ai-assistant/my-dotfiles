@@ -3,17 +3,22 @@ export def main [] { }
 def open-configs [] {
     open paths-default.csv
     | update full-path { path expand --no-symlink }
+    | update path-in-repo { path expand --no-symlink }
 }
 
 def open-local-configs [] {
     'paths-local.csv'
     | if ($in | path exists) { open } else { [] }
+    | update path-in-repo { path expand --no-symlink }
 }
 
 export def pull-from-local-configs [
     --check-local-files-exist
 ] {
-    open-configs
+    open-local-configs
+    | where status =~ '^update'
+    | append (open-configs)
+    | uniq-by path-in-repo
     | update path-in-repo { path expand --no-symlink }
     | where {|i| $i.full-path | path exists }
     | group-by { $in.path-in-repo | path dirname }
@@ -28,7 +33,10 @@ export def pull-from-local-configs [
 export def push-to-local-configs [
     --create-dirs # in case of missing directories - create them in place
 ] {
-    open-configs
+    open-local-configs
+    | where status =~ '^update'
+    | append (open-configs)
+    | uniq-by path-in-repo
     | group-by { $in.full-path | path dirname }
     | items {|dirname v|
         if ($dirname | path exists) { $v } else {
