@@ -39,11 +39,12 @@ let candidates = $configs
     where $it !~ $ignored_folders_regex
 }
 | where $it not-in $configs.full-path
+| where ($it | path type) == 'file'
 | wrap full-path
 
 $local_configs
 | where full-path? !~ $ignored_folders_regex and status? not-in ['ignore']
-| append $ignored_paths
+| prepend ($ignored_paths | select full-path status --optional)
 | append $candidates
 | uniq-by full-path
 | default '' status
