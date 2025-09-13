@@ -83,8 +83,8 @@ right = ["selections", "primary-selection-length", "position", "position-percent
 [keys.normal."+"]
 w = ":set soft-wrap.enable false"
 W = ":set soft-wrap.enable true"
-c = ":pipe correct-english"
-a = ":pipe word-diff apply"
+c = ":pipe ^claude -p 'Correct grammar in text. Respond only with corrected text.<text>%{selection}</text>'"
+d = ":pipe word-diff apply"
 n = "@%s"
 t = ":pipe $\"<user>\n($in)</user>\""
 s = ":pipe-to r#'<selected-text file=\"%sh{realpath %{buffer_name}}\" lines=\"%{selection_line_start}-%{selection_line_end}\">%{selection}</selected-text>'# | pbcopy"
