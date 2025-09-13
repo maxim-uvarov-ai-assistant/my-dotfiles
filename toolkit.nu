@@ -1,7 +1,7 @@
 export def main [] { }
 
 def open-configs [] {
-    open configs-list.csv
+    open paths-default.csv
     | update full-path { path expand --no-symlink }
 }
 
