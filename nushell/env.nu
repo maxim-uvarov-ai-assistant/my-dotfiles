@@ -250,3 +250,4 @@ $env.TOPIARY_LANGUAGE_DIR = ($env.XDG_CONFIG_HOME | path join topiary languages)
 $env.EDITOR = 'hx'
 
 alias claude = /Users/user/.claude/local/claude
+alias `:q` = exit
