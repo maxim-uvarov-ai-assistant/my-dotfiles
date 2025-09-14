@@ -83,10 +83,43 @@ right = ["selections", "primary-selection-length", "position", "position-percent
 [keys.normal."+"]
 w = ":set soft-wrap.enable false"
 W = ":set soft-wrap.enable true"
-c = ":pipe ^claude -p 'Correct grammar in text. Respond only with corrected text.<text>%{selection}</text>'"
+
+c = '''
+:pipe #correct english→
+^claude -p r###########'
+Correct grammar in the text. Respond only with corrected text.
+<text>%{selection}</text>'###########
+'''
+
 d = ":pipe word-diff apply"
-n = "@%s"
-t = ":pipe $\"<user>\n($in)</user>\""
-s = ":pipe-to r#'<selected-text file=\"%sh{realpath %{buffer_name}}\" lines=\"%{selection_line_start}-%{selection_line_end}\">%{selection}</selected-text>'# | pbcopy"
-A = ":append-output try {nu -c r######'%{selection}'######} catch {|e| $e} | table | into string | lines | each {$\"# => ($in)\"} | if (r####'%{selection}'#### =~ \"\n$\") {} else {prepend ''} | to text"
-a = ":append-output let lines = try {nu -c r######'%{selection}'######} catch {|e| $e} | table | into string | lines; let len = $lines | length; $lines | if $len > 5 {first 5 | append $'... and ($len - 5) more lines'} else {} | each {$\"# => ($in)\"} | if (r####'%{selection}'#### =~ \"\n$\") {} else {prepend ''} | to text"
+n = "@%s" # timestamp
+t = ':pipe $"<user>\n($in)</user>"'
+
+s = '''
+:pipe-to #xml-coordinate-references→
+r#'<selected-text file="%sh{realpath %{buffer_name}}" lines="%{selection_line_start}-%{selection_line_end}">%{selection}</selected-text>'# | pbcopy
+'''
+
+A = '''
+:append-output #append-commented-results→
+nu -c r###########'%{selection}'########### o+e>| lines
+| each { $"# => ($in)"}
+| if r###########'%{selection}'########### ends-with "\n" {} else {prepend ''}
+| to text
+'''
+
+
+a = '''
+:append-output #append-abreviated-results→
+let lines = nu -c r###########'%{selection}'########### o+e>| lines
+
+let len = $lines | length;
+
+$lines
+| if $len > 7 {
+  first 7 | append $'... and ($len - 7) more lines'
+} else {}
+| each {$"# => ($in)"}
+| if r###########'%{selection}'########### ends-with "\n" {} else {prepend ''}
+| to text
+'''
