@@ -1,19 +1,33 @@
 local wezterm = require 'wezterm'
 
 -- ============================================================================
+-- LOCAL SETTINGS IMPORT (optional)
+-- ============================================================================
+local ok, local_settings = pcall(require, 'local_settings')
+if not ok then
+  local_settings = {}
+  wezterm.log_info("No local_settings.lua found, using defaults")
+end
+
+-- ============================================================================
 -- CONFIGURATION CONSTANTS
 -- ============================================================================
-local FONT_SIZE = 17.0
-local ZEN_FONT_SIZE = 30
-local INITIAL_COLS = 220
-local INITIAL_ROWS = 220
-local MAX_FPS = 255
+local DEFAULTS = {
+  font_size = 17.0,
+  zen_font_size = 30,
+  initial_cols = 220,
+  initial_rows = 220,
+  max_fps = 255,
+}
+
+for k, v in pairs(DEFAULTS) do
+  if local_settings[k] == nil then
+    local_settings[k] = v
+  end
+end
 
 -- Initialize configuration
-local config = {}
-if wezterm.config_builder then
-  config = wezterm.config_builder()
-end
+local config = wezterm.config_builder and wezterm.config_builder() or {}
 
 -- ============================================================================
 -- STARTUP & SHELL
@@ -25,38 +39,32 @@ local function find_executable(cmd)
   if handle then
     local result = handle:read("*a"):gsub("%s+$", "")
     handle:close()
-    if result and result ~= "" then
-      return result
-    end
+    if result ~= "" then return result end
   end
 
   -- Get user home directory dynamically
   local home = os.getenv("HOME") or os.getenv("USERPROFILE") or ""
 
-  -- Build dynamic common paths
-  local common_paths = {}
-
-  -- Add user-specific paths
+  local paths = {}
   if home ~= "" then
-    table.insert(common_paths, home .. "/.cargo/bin/")
-    table.insert(common_paths, home .. "/.local/bin/")
-    table.insert(common_paths, home .. "/bin/")
+    paths = {
+      home .. "/.cargo/bin/",
+      home .. "/.local/bin/",
+      home .. "/bin/",
+    }
   end
 
-  -- Add system paths based on platform
-  local system_paths = {
-    "/opt/homebrew/bin/", -- macOS Homebrew
-    "/usr/local/bin/",    -- Common Unix
-    "/usr/bin/",          -- Standard Unix
-    "/bin/",              -- System binaries
-  }
-
-  for _, path in ipairs(system_paths) do
-    table.insert(common_paths, path)
+  -- Append system paths
+  for _, p in ipairs({
+    "/opt/homebrew/bin/",
+    "/usr/local/bin/",
+    "/usr/bin/",
+    "/bin/",
+  }) do
+    table.insert(paths, p)
   end
 
-  -- Check each path
-  for _, path in ipairs(common_paths) do
+  for _, path in ipairs(paths) do
     local full_path = path .. cmd
     local file = io.open(full_path, "r")
     if file then
@@ -64,76 +72,63 @@ local function find_executable(cmd)
       return full_path
     end
   end
-
-  return nil
 end
 
--- Find executables and build shell command with fallbacks
 local function setup_shell()
   local nu_path = find_executable('nu')
-  if nu_path then
-    local zellij_path = find_executable('zellij')
-    if zellij_path then
-      -- Use zellij with nushell
-      config.default_prog = { nu_path, '-l', '--execute', 'zellij attach -c prophet' }
-      return
-    else
-      -- Use nushell without zellij
-      config.default_prog = { nu_path }
-      return
-    end
+  if not nu_path then
+    wezterm.log_info("Nushell not found, using system default shell")
+    return
   end
 
-  -- Fallback to system default shell if nu is not available
-  -- WezTerm will use the system default shell if default_prog is not set
-  wezterm.log_info("Nushell not found, using system default shell")
+  local zellij_path = find_executable('zellij')
+  config.default_prog = zellij_path
+    and { nu_path, '-l', '--execute', 'zellij attach -c prophet' }
+    or { nu_path }
 end
 
--- Setup shell with error handling
-local ok, err = pcall(setup_shell)
-if not ok then
-  wezterm.log_error("Error setting up shell: " .. tostring(err))
-end
+-- Setup shell
+pcall(setup_shell)
 config.check_for_updates = false
 
 -- ============================================================================
 -- ENVIRONMENT
 -- ============================================================================
--- Set XDG directories dynamically based on platform
 local function setup_environment()
   local home = os.getenv("HOME") or os.getenv("USERPROFILE") or ""
-  local config_env = {}
-
-  if home ~= "" then
-    config_env.XDG_CONFIG_HOME = home .. "/.config"
-    config_env.XDG_DATA_HOME = home .. "/.local/share"
-  else
-    wezterm.log_warn("Unable to determine home directory, XDG variables not set")
+  if home == "" then
+    wezterm.log_warn("Unable to determine home directory")
+    return {}
   end
-
-  return config_env
+  return {
+    XDG_CONFIG_HOME = home .. "/.config",
+    XDG_DATA_HOME = home .. "/.local/share",
+  }
 end
 
--- Setup environment with error handling
-local env_ok, env_vars = pcall(setup_environment)
-if env_ok and env_vars then
-  config.set_environment_variables = env_vars
-else
-  wezterm.log_error("Error setting up environment variables")
-  config.set_environment_variables = {}
-end
+-- Setup environment
+local ok, env_vars = pcall(setup_environment)
+config.set_environment_variables = ok and env_vars or {}
 
 -- ============================================================================
 -- APPEARANCE
 -- ============================================================================
 -- Font configuration
 config.font = wezterm.font { family = 'ZedMono Nerd Font', stretch = 'Expanded' }
-config.font_size = FONT_SIZE
+config.font_size = local_settings.font_size
+
+-- Color settings
+if local_settings.background then
+  config.colors = {
+    background = local_settings.background,
+  }
+end
 
 -- Window settings
-config.initial_cols = INITIAL_COLS
-config.initial_rows = INITIAL_ROWS
+config.initial_cols = local_settings.initial_cols
+config.initial_rows = local_settings.initial_rows
 config.hide_tab_bar_if_only_one_tab = true
+config.window_padding = { left = 0, right = 0, top = 0, bottom = 0 }
 
 -- Platform-specific settings
 local is_macos = wezterm.target_triple:find("darwin") ~= nil
@@ -146,20 +141,15 @@ end
 -- ============================================================================
 config.front_end = "WebGpu"
 config.webgpu_power_preference = "HighPerformance"
-config.max_fps = MAX_FPS
-config.animation_fps = MAX_FPS
+config.max_fps = local_settings.max_fps
+config.animation_fps = local_settings.max_fps
 
 -- ============================================================================
 -- BEHAVIOR
 -- ============================================================================
 config.switch_to_last_active_tab_when_closing_tab = true
 config.skip_close_confirmation_for_processes_named = {
-  'bash',
-  'sh',
-  'zsh',
-  'fish',
-  'tmux',
-  'nu',
+  'bash', 'sh', 'zsh', 'fish', 'tmux', 'nu',
 }
 config.mouse_wheel_scrolls_tabs = false
 config.enable_kitty_keyboard = true
@@ -207,11 +197,7 @@ config.quick_select_patterns = quick_select_patterns
 wezterm.on('user-var-changed', function(window, pane, name, value)
   local overrides = window:get_config_overrides() or {}
   if name == "ZEN_MODE" then
-    if value == "on" then
-      overrides.font_size = ZEN_FONT_SIZE
-    else
-      overrides.font_size = nil
-    end
+    overrides.font_size = value == "on" and local_settings.zen_font_size or nil
   end
   window:set_config_overrides(overrides)
 end)
