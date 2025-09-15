@@ -507,3 +507,9 @@ support_kitty_keyboard_protocol true
 // Default: true
 //
 // show_startup_tips false
+
+ui {
+    pane_frames {
+        hide_session_name true
+    }
+}
