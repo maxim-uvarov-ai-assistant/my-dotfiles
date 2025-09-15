@@ -1,8 +1,5 @@
 full-path,path-in-repo
 ~/.config/broot/conf.hjson,broot/conf.hjson
-~/.config/broot/launcher/bash/br,broot/launcher/bash/br
-~/.config/broot/launcher/installed-v4,broot/launcher/installed-v4
-~/.config/broot/launcher/nushell/br,broot/launcher/nushell/br
 ~/.config/broot/select.toml,broot/select.toml
 ~/.config/broot/verbs.hjson,broot/verbs.hjson
 ~/.config/ghostty/config,ghostty/config
