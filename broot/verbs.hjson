@@ -148,7 +148,7 @@
             invocation: pbcopy
             shortcut: pb
             leave_broot: false
-            external: ["sh" "-c" "echo '{file}' | sed \"s|$PWD/||\" | pbcopy"]
+            external: ["sh" "-c" "echo '{file-git-relative}' | pbcopy"]
         }
         {
             invocation: pbfull
@@ -160,7 +160,7 @@
             invocation: pbcopy
             shortcut: pbq
             leave_broot: true
-            external: ["sh" "-c" "echo '{file}' | sed \"s|$PWD/||\" | pbcopy"]
+            external: ["sh" "-c" "echo '{file-git-relative}' | pbcopy"]
         }
         {
             invocation: pbfull
