@@ -36,8 +36,9 @@
         {
             invocation: edit
             shortcut: e
-            execution: "$EDITOR {file}"
-            leave_broot: false
+            execution: "hx {file}"
+            leave_broot: true
+            from_shell: true
         }
 
         # A convenient shortcut to create new text files in
@@ -148,7 +149,7 @@
             invocation: pbcopy
             shortcut: pb
             leave_broot: false
-            external: ["sh" "-c" "echo '{file}' | sed \"s|$PWD/||\" | pbcopy"]
+            external: ["sh" "-c" "echo '{file-git-relative}' | pbcopy"]
         }
         {
             invocation: pbfull
@@ -160,7 +161,7 @@
             invocation: pbcopy
             shortcut: pbq
             leave_broot: true
-            external: ["sh" "-c" "echo '{file}' | sed \"s|$PWD/||\" | pbcopy"]
+            external: ["sh" "-c" "echo '{file-git-relative}' | pbcopy"]
         }
         {
             invocation: pbfull

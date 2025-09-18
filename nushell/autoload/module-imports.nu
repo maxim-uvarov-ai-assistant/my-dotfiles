@@ -1,8 +1,8 @@
 # Create isolated overlay for external tools
 overlay new others
-source /Users/user/.config/broot/launcher/nushell/br
 
 # # moved to autloads
+# source /Users/user/.config/broot/launcher/nushell/br
 # source /Users/user/git/nu_scripts/sourced/standard_4002_aliasses.nu
 # source /Users/user/git/my_nu_completions/my_nu_completions.nu
 
@@ -19,4 +19,3 @@ overlay use /Users/user/git/numd/numd --prefix
 # use /Users/user/git/npshow-module/npshow
 # use /Users/user/git/todo
 # use /Users/user/git/nu-critic-markup/commands.nu *
-
