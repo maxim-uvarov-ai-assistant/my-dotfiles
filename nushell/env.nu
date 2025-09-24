@@ -222,8 +222,8 @@ $env.PATH = (
         ($env.NUPM_HOME | path join "modules")
         '/opt/homebrew/opt/curl/bin'
         '/Users/user/.cargo/bin'
-        # '/Users/user/miniconda3/bin'
-        # '/Users/user/miniconda3/condabin'
+        '/Users/user/miniconda3/bin'
+        '/Users/user/miniconda3/condabin'
         '/opt/homebrew/bin'
         '/opt/homebrew/sbin'
         '/usr/local/bin'
