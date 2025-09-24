@@ -100,8 +100,8 @@ export def --env br [
     let $cmd = open $cmd_file | str trim --char (char nl)
     rm -p -f $cmd_file
 
-    if (not ($cmd | lines | is-empty)) {
-        commandline edit $cmd
+    if not ($cmd | lines | is-empty) {
+        commandline edit --accept $cmd
     }
 }
 
