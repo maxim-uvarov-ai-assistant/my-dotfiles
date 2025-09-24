@@ -168,7 +168,7 @@ config.keys = {
   { key = 'q', mods = 'CMD',        action = wezterm.action.QuitApplication },
 
   -- cmd+shift+h
-  { key = 'l', mods = 'CMD|SHIFT',  action = wezterm.action.SendString '\x1b[104;10u' },
+  { key = 'h', mods = 'CMD|SHIFT',  action = wezterm.action.SendString '\x1b[104;10u' },
   -- cmd+shift+l
   { key = 'l', mods = 'CMD|SHIFT',  action = wezterm.action.SendString '\x1b[108;10u' },
 }
@@ -187,8 +187,8 @@ local quick_select_patterns = {
   "(?<=─|╭|┬)([a-zA-Z0-9 _%.-]+?)(?=─|╮|┬)", -- Headers
   "(?<=│ )([a-zA-Z0-9 _.-]+?)(?= │)", -- Column values
 
-  -- File paths (stops at ~)
-  "/[^/\\s│~]*(?:\\s+[^/\\s│~]*)*(?:/[^/\\s│~]*(?:\\s+[^/\\s│~]*)*)*",
+  -- File paths (stops at ~, excludes trailing dots and spaces)
+  "/[^/\\s│~.]+(?:/[^/\\s│~.]+)*(?:\\.[a-zA-Z0-9]+)?",
 }
 
 config.quick_select_patterns = quick_select_patterns
