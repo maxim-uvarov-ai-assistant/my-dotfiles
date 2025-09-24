@@ -144,12 +144,12 @@ keybinds clear-defaults=true {
         bind "Super ]" { NextSwapLayout; }
         bind "Super f" { ToggleFloatingPanes; }
         bind "Super h" { MoveFocus "left"; }
-        bind "Super Ctrl h" { GoToPreviousTab; }
+        bind "Super Shift h" { GoToPreviousTab; }
         bind "Super i" { MoveTab "left"; }
         bind "Super j" { MoveFocus "down"; }
         bind "Super k" { MoveFocus "up"; }
         bind "Super l" { MoveFocus "right"; }
-        bind "Super Ctrl l" { GoToNextTab; }
+        bind "Super Shift l" { GoToNextTab; }
         bind "Super n" { NewPane; }
         bind "Super t" { NewTab; }
         bind "Super alt t" { NewTab {
