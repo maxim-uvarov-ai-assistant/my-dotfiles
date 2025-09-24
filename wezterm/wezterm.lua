@@ -166,6 +166,11 @@ config.keys = {
   { key = '-', mods = 'CMD',        action = wezterm.action.DecreaseFontSize },
   { key = '0', mods = 'CMD',        action = wezterm.action.ResetFontSize },
   { key = 'q', mods = 'CMD',        action = wezterm.action.QuitApplication },
+
+  -- cmd+shift+h
+  { key = 'l', mods = 'CMD|SHIFT',  action = wezterm.action.SendString '\x1b[104;10u' },
+  -- cmd+shift+l
+  { key = 'l', mods = 'CMD|SHIFT',  action = wezterm.action.SendString '\x1b[108;10u' },
 }
 
 -- ============================================================================
