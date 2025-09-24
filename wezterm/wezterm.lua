@@ -182,8 +182,8 @@ local quick_select_patterns = {
   "(?<=─|╭|┬)([a-zA-Z0-9 _%.-]+?)(?=─|╮|┬)", -- Headers
   "(?<=│ )([a-zA-Z0-9 _.-]+?)(?= │)", -- Column values
 
-  -- File paths (stops at ~)
-  "/[^/\\s│~]*(?:\\s+[^/\\s│~]*)*(?:/[^/\\s│~]*(?:\\s+[^/\\s│~]*)*)*",
+  -- File paths (stops at ~, excludes trailing dots and spaces)
+  "/[^/\\s│~.]+(?:/[^/\\s│~.]+)*(?:\\.[a-zA-Z0-9]+)?",
 }
 
 config.quick_select_patterns = quick_select_patterns
