@@ -191,6 +191,7 @@ keybinds clear-defaults=true {
             Run "lazygit" {
                 close_on_exit true
                 floating true
+                // inplace true // seems not-working
                 x "2%"
                 y "2%"
                 width "98%"
@@ -200,7 +201,7 @@ keybinds clear-defaults=true {
         }
 
         bind "Super alt b" {
-            Run "broot" {
+            Run "wezterm" "start" "--new-tab" "--" "nu" "-c" "broot | zellij action write-chars $in" {
                 close_on_exit true
                 floating true
                 x "2%"
