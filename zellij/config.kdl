@@ -201,7 +201,7 @@ keybinds clear-defaults=true {
         }
 
         bind "Super alt b" {
-            Run "wezterm" "start" "--new-tab" "--" "nu" "-c" "broot | zellij action write-chars $in" {
+            Run "broot" {
                 close_on_exit true
                 floating true
                 x "2%"
