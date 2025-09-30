@@ -51,10 +51,10 @@ flagsWatcher = hs.eventtap.new({hs.eventtap.event.types.flagsChanged}, function(
     -- When Command keys are released, if one was pressed alone, change layout.
     if leftCmdDown and not ignoreCmd then
       log("Left Cmd released alone → scheduling switch to English")
-      hs.timer.doAfter(0.05, function() setLayout(englishLayout) end)
+      hs.timer.doAfter(0.001, function() setLayout(englishLayout) end)
     elseif rightCmdDown and not ignoreCmd then
       log("Right Cmd released alone → scheduling switch to Russian")
-      hs.timer.doAfter(0.05, function() setLayout(russianLayout) end)
+      hs.timer.doAfter(0.001, function() setLayout(russianLayout) end)
     end
     -- Reset all state
     leftCmdDown = false
@@ -97,7 +97,7 @@ escWatcher = hs.eventtap.new({hs.eventtap.event.types.keyDown}, function(evt)
   -- Check if ESC key (keyCode 53) is pressed without modifiers
   if keyCode == 53 and not (flags.cmd or flags.alt or flags.ctrl or flags.shift) then
     log("ESC pressed → switching to English layout")
-    hs.timer.doAfter(0.01, function() setLayout(englishLayout) end)
+    hs.timer.doAfter(0.001, function() setLayout(englishLayout) end)
   end
   
   return false
