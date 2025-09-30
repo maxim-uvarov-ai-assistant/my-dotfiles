@@ -64,6 +64,9 @@ flagsWatcher = hs.eventtap.new({hs.eventtap.event.types.flagsChanged}, function(
     -- When Command is pressed, update state based on keyCode.
     if code == 0x37 then
       leftCmdDown = true
+      -- Switch to English immediately on left Cmd press
+      log("Left Cmd pressed → switching to English immediately")
+      setLayout(englishLayout)
     elseif code == 0x36 then
       rightCmdDown = true
     end
