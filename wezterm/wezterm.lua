@@ -167,10 +167,58 @@ config.keys = {
   { key = '0', mods = 'CMD',        action = wezterm.action.ResetFontSize },
   { key = 'q', mods = 'CMD',        action = wezterm.action.QuitApplication },
 
+  -- cmd+shift+a
+  { key = 'a', mods = 'CMD|SHIFT',  action = wezterm.action.SendString '\x1b[97;10u' },
+  -- cmd+shift+b
+  { key = 'b', mods = 'CMD|SHIFT',  action = wezterm.action.SendString '\x1b[98;10u' },
+  -- cmd+shift+c
+  { key = 'c', mods = 'CMD|SHIFT',  action = wezterm.action.SendString '\x1b[99;10u' },
+  -- cmd+shift+d
+  { key = 'd', mods = 'CMD|SHIFT',  action = wezterm.action.SendString '\x1b[100;10u' },
+  -- cmd+shift+e
+  { key = 'e', mods = 'CMD|SHIFT',  action = wezterm.action.SendString '\x1b[101;10u' },
+  -- cmd+shift+f
+  { key = 'f', mods = 'CMD|SHIFT',  action = wezterm.action.SendString '\x1b[102;10u' },
+  -- cmd+shift+g
+  { key = 'g', mods = 'CMD|SHIFT',  action = wezterm.action.SendString '\x1b[103;10u' },
   -- cmd+shift+h
   { key = 'h', mods = 'CMD|SHIFT',  action = wezterm.action.SendString '\x1b[104;10u' },
+  -- cmd+shift+i
+  { key = 'i', mods = 'CMD|SHIFT',  action = wezterm.action.SendString '\x1b[105;10u' },
+  -- cmd+shift+j
+  { key = 'j', mods = 'CMD|SHIFT',  action = wezterm.action.SendString '\x1b[106;10u' },
+  -- cmd+shift+k
+  { key = 'k', mods = 'CMD|SHIFT',  action = wezterm.action.SendString '\x1b[107;10u' },
   -- cmd+shift+l
   { key = 'l', mods = 'CMD|SHIFT',  action = wezterm.action.SendString '\x1b[108;10u' },
+  -- cmd+shift+m
+  { key = 'm', mods = 'CMD|SHIFT',  action = wezterm.action.SendString '\x1b[109;10u' },
+  -- cmd+shift+n (new window)
+  { key = 'n', mods = 'CMD|SHIFT',  action = wezterm.action.SpawnWindow },
+  -- cmd+shift+o
+  { key = 'o', mods = 'CMD|SHIFT',  action = wezterm.action.SendString '\x1b[111;10u' },
+  -- cmd+shift+p
+  { key = 'p', mods = 'CMD|SHIFT',  action = wezterm.action.SendString '\x1b[112;10u' },
+  -- cmd+shift+q
+  { key = 'q', mods = 'CMD|SHIFT',  action = wezterm.action.SendString '\x1b[113;10u' },
+  -- cmd+shift+r
+  { key = 'r', mods = 'CMD|SHIFT',  action = wezterm.action.SendString '\x1b[114;10u' },
+  -- cmd+shift+s
+  { key = 's', mods = 'CMD|SHIFT',  action = wezterm.action.SendString '\x1b[115;10u' },
+  -- cmd+shift+t
+  { key = 't', mods = 'CMD|SHIFT',  action = wezterm.action.SendString '\x1b[116;10u' },
+  -- cmd+shift+u
+  { key = 'u', mods = 'CMD|SHIFT',  action = wezterm.action.SendString '\x1b[117;10u' },
+  -- cmd+shift+v
+  { key = 'v', mods = 'CMD|SHIFT',  action = wezterm.action.SendString '\x1b[118;10u' },
+  -- cmd+shift+w
+  { key = 'w', mods = 'CMD|SHIFT',  action = wezterm.action.SendString '\x1b[119;10u' },
+  -- cmd+shift+x
+  { key = 'x', mods = 'CMD|SHIFT',  action = wezterm.action.SendString '\x1b[120;10u' },
+  -- cmd+shift+y
+  { key = 'y', mods = 'CMD|SHIFT',  action = wezterm.action.SendString '\x1b[121;10u' },
+  -- cmd+shift+z
+  { key = 'z', mods = 'CMD|SHIFT',  action = wezterm.action.SendString '\x1b[122;10u' },
 }
 
 -- ============================================================================
