@@ -174,11 +174,14 @@ $env.config.menus ++= [
             selected_text: green_reverse
         }
         source: {|buffer position|
+
+             let $buffer_esc = $buffer | str replace -ar '(_|-)' '_|-'
+
             open $nu.history-path
             | query db "SELECT DISTINCT(cwd) FROM history ORDER BY id DESC"
             | get cwd
             | into string
-            | where $it =~ $"\(?i)($buffer)"
+            | where $it =~ $"\(?i)($buffer_esc)"
             | compact --empty
             | each {
                 if ($in has ' ') {
