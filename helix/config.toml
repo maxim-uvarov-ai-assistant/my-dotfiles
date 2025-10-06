@@ -101,7 +101,7 @@ s = '''
 r#'<selected-text file="%sh{realpath %{buffer_name}}" lines="%{selection_line_start}-%{selection_line_end}">%{selection}</selected-text>'# | pbcopy
 '''
 
-A = '''
+a = '''
 :append-output #append-commented-results→
 nu -c r###########'%{selection}'########### o+e>| lines
 | each { $"# => ($in)"}
@@ -110,7 +110,7 @@ nu -c r###########'%{selection}'########### o+e>| lines
 '''
 
 
-a = '''
+A = '''
 :append-output #append-abreviated-results→
 let lines = nu -c r###########'%{selection}'########### o+e>| lines
 
