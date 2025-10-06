@@ -124,3 +124,12 @@ $lines
 | if r###########'%{selection}'########### ends-with "\n" {} else {prepend ''}
 | to text
 '''
+
+C = '''
+:pipe #remove-commented-output
+lines | where $it !~ "^# =>" | to text
+'''
+
+e = '''
+:pipe dotnu-embeds-update.nu
+'''
