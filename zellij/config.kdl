@@ -197,7 +197,6 @@ keybinds clear-defaults=true {
             Run "lazygit" {
                 close_on_exit true
                 floating true
-                // inplace true // seems not-working
                 x "2%"
                 y "2%"
                 width "98%"
