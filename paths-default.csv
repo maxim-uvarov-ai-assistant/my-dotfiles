@@ -22,3 +22,5 @@ full-path,path-in-repo
 ~/.config/wezterm/wezterm.lua,wezterm/wezterm.lua
 ~/.config/zellij/config.kdl,zellij/config.kdl
 ~/.config/zellij/todo-hx.nu,zellij/todo-hx.nu
+~/.config/zellij/layouts/compact-bar-up.kdl,zellij/layouts/compact-bar-up.kdl
+~/.config/zellij/layouts/compact-bar-up.swap.kdl,zellij/layouts/compact-bar-up.swap.kdl

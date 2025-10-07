@@ -14,10 +14,10 @@ preview-completion-insert = true
 shell = ["nu", "--config", "/Users/user/.config/nushell/config.nu", "--env-config", "/Users/user/.config/nushell/env.nu", "--no-newline", "--stdin", "-c"]
 
 [editor.whitespace.render]
-nbsp = "none"
-newline = "none"
-nnbsp = "none"
-space = "none"
+nbsp = "all"
+newline = "all"
+nnbsp = "all"
+space = "all"
 tab = "all"
 
 [editor.cursor-shape]
