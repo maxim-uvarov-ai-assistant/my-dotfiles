@@ -142,10 +142,10 @@ verbs: [
     #     execution: ":toggle_git_status"
     # }
 
-    {
-        key: ctrl-shift-a
-        execution: ":stage_all_files"
-    }
+    # {
+    #     key: ctrl-shift-a
+    #     execution: ":stage_all_files"
+    # }
 
 
     # You can reproduce the bindings of Norton Commander

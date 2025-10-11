@@ -537,7 +537,12 @@ def broot-source [] {
         | if $in =~ '^~' { path expand } else { }
         | if ($in | path exists) { } else { '.' }
 
-        let config_path = $env.XDG_CONFIG_HOME? | default '~/.config' | path join broot select.toml
+        let config_path = $env.XDG_CONFIG_HOME?
+        | default '~/.config'
+        | path join broot '{conf,select}.hjson'
+        | str expand
+        | path expand
+        | str join ';'
 
         let broot_path = ^broot $path_exp --conf $config_path
         | path expand
