@@ -1,6 +1,6 @@
 full-path,path-in-repo
 ~/.config/broot/conf.hjson,broot/conf.hjson
-~/.config/broot/select.toml,broot/select.toml
+~/.config/broot/select.hjson,broot/select.hjson
 ~/.config/broot/verbs.hjson,broot/verbs.hjson
 ~/.claude/CLAUDE.md,claude/CLAUDE.md
 ~/.claude/agents/agent-commit-git.md,claude/agents/agent-commit-git.md
