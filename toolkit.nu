@@ -103,3 +103,11 @@ export def fill-candidates [] {
     | default '' status
     | save -f paths-local.csv
 }
+
+export def cleanup-paths-not-in-csv [] {
+    let exist_paths = glob **/* --exclude [**/.git/** **/.jj/** toolkit.nu macos-fresh/* paths-default.csv README.md .gitignore] --no-dir
+
+    let paths_in_csv = open paths-default.csv | get path-in-repo
+
+    $exist_paths | path relative-to (pwd) | where $it not-in $paths_in_csv
+}
