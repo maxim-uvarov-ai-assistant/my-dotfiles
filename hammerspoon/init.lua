@@ -161,3 +161,16 @@ for key, arrow in pairs(navKeys) do
     nil,
     function() hs.eventtap.keyStroke({}, arrow, 0) end)
 end
+
+------------------------------------------------------------------
+-- Text replacement: № → #
+------------------------------------------------------------------
+textReplacer = hs.eventtap.new({hs.eventtap.event.types.keyDown}, function(evt)
+  local char = evt:getCharacters()
+  if char == "№" then
+    hs.eventtap.keyStrokes("#")
+    return true  -- suppress the original № character
+  end
+  return false
+end)
+textReplacer:start()
