@@ -284,6 +284,7 @@ $env.FZF_HISTORY_BASE = [
     "--wrap-sign=\t↳ "
     '--tiebreak=begin,length,chunk'
     '--bind=load:toggle-sort' # Sort with initially provided order
+    '--bind=alt-r:toggle-raw'
     '--with-shell=sh -c'
     '--preview-window=bottom:30%:wrap'
     '--preview=echo {2} | nu -n --no-std-lib --stdin -c "nu-highlight" '
