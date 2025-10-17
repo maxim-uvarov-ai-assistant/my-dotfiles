@@ -81,7 +81,62 @@ left = ["mode", "spinner", "file-name", "total-line-numbers", "file-encoding"]
 center = []
 right = ["selections", "primary-selection-length", "position", "position-percentage", "spacer", "diagnostics", "workspace-diagnostics", "version-control"]
 
+# there is one more section with 'keys.select."+"'
 [keys.normal."+"]
+w = ":set soft-wrap.enable false"
+W = ":set soft-wrap.enable true"
+
+c = '''
+:pipe #correct english→
+^claude -p r###########'
+Correct grammar in the text. Respond only with corrected text.
+<text>%{selection}</text>'###########
+'''
+
+d = ":pipe word-diff apply"
+n = "@%s" # timestamp
+t = ':pipe $"<user>\n($in)</user>"'
+
+s = '''
+:pipe-to #xml-coordinate-references→
+r#'<selected-text file="%sh{realpath %{buffer_name}}" lines="%{selection_line_start}-%{selection_line_end}">%{selection}</selected-text>'# | pbcopy
+'''
+
+a = '''
+:append-output #append-commented-results→
+nu -c r###########'%{selection}'########### o+e>| lines
+| each { $"# => ($in)"}
+| if r###########'%{selection}'########### ends-with "\n" {} else {prepend ''}
+| to text
+'''
+
+
+A = '''
+:append-output #append-abreviated-results→
+let lines = nu -c r###########'%{selection}'########### o+e>| lines
+
+let len = $lines | length;
+
+$lines
+| if $len > 7 {
+  first 7 | append $'... and ($len - 7) more lines'
+} else {}
+| each {$"# => ($in)"}
+| if r###########'%{selection}'########### ends-with "\n" {} else {prepend ''}
+| to text
+'''
+
+C = '''
+:pipe #remove-commented-output
+lines | where $it !~ "^# =>" | to text
+'''
+
+e = '''
+:pipe dotnu-embeds-update.nu
+'''
+
+# just a duplicate from keys.normal."+"
+[keys.select."+"]
 w = ":set soft-wrap.enable false"
 W = ":set soft-wrap.enable true"
 
