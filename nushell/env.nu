@@ -2,101 +2,6 @@
 #
 # version = "0.99.0"
 
-# create a small sparkline graph
-export def sparkline [] {
-    let $v = $in
-    let TICKS = 2581..2588 | each { into string | char -u $in }
-    let min = $v | math min
-    let max = $v | math max
-    let range = $max - $min
-    let rel_range = $range / $max
-    let ratio = if $max == $min { 1.0 } else { 7.0 / $range }
-
-    if $rel_range > 0.1 and $max > 10 {
-        $v
-        | each {|e| $TICKS | get (($e - $min) * $ratio | math round) }
-        | str join
-    } else { '' }
-}
-
-export def significant [
-    n: int = 3 # a number of significant digits
-]: [int -> int float -> float duration -> duration] {
-    let $input = $in
-    let $type = $input | describe
-
-    let $num = match $type {
-        'duration' => { $input | into int }
-        _ => { $input }
-    }
-
-    let insignif_position = $num
-    | if $in == 0 {
-        0 # it's impoosbile to calculate `math log` from 0, thus 0 errors here
-    } else {
-        math abs
-        | math log 10
-        | math floor
-        | $n - 1 - $in
-    }
-
-    # See the note below the code for an explanation of the construct used.
-    let scaling_factor = 10 ** ($insignif_position | math abs)
-
-    let res = $num
-    | if $insignif_position > 0 { $in * $scaling_factor } else { $in / $scaling_factor }
-    | math floor
-    | if $insignif_position <= 0 { $in * $scaling_factor } else { $in / $scaling_factor }
-
-    match $type {
-        'duration' => { $res | into duration }
-        'int' => { $res | into int }
-        _ => { $res }
-    }
-}
-
-export def last-10-commands [] {
-    if $nu.history-path =~ '\.txt$' { return }
-
-    let $curr = $env.CMD_DURATION_MS | into int | if $in == 0 { return } else { }
-    let $curr_format = $curr
-    | significant 2
-    | into duration --unit 'ms'
-    | into string
-    | parse -r '(?<m>\d+)(?<u>\w+) ?(?<s>[1-9])?'
-    | get 0
-    | update u { str substring ..1 }
-    | if $in.s? != '' { $'($in.m).($in.s)($in.u)' } else { $in.m + $in.u }
-
-    let $list = sqlite3 -csv -header $nu.history-path '
-            WITH latest_command AS (
-                SELECT command_line
-                FROM history
-                ORDER BY id DESC
-                LIMIT 1
-            )
-            SELECT duration_ms
-            FROM history
-            WHERE command_line = (SELECT command_line FROM latest_command)
-            ORDER BY id DESC
-            LIMIT 10;
-        '
-    | from csv
-    | get duration_ms
-    | compact
-    | append $curr
-
-    let $diff = 1 - (($list | math min | append 1 | math max) / ($list | math max))
-    | math round --precision 3
-    | $in * 100
-    | into string
-    | str replace -r '(\.\d).*' '$1'
-
-    $list
-    | sparkline
-    | $'(ansi grey)±($diff)% ($in) ($curr_format)'
-}
-
 def create_left_prompt [] {
     let dir = do -i { $env.PWD | path relative-to $nu.home-path }
     | match $in {
@@ -119,8 +24,7 @@ def create_left_prompt [] {
         | str replace -r '^## ' ''
     } else { '' }
 
-    $'(char nl)(create_right_prompt)'
-    | append $'(ansi grey)┏ (ansi reset)($path_segment) ($git_status)'
+    $'(char nl)(ansi grey)┏ (ansi reset)($path_segment) ($git_status)'
     | append $'(ansi grey)┗━(ansi reset)'
     | str join (char nl)
 }
@@ -163,7 +67,7 @@ $env.PROMPT_MULTILINE_INDICATOR = {|| "" }
 # This can be useful if you have a 2-line prompt and it's taking up a lot of space
 # because every command entered takes up 2 lines instead of 1. You can then uncomment
 # the line below so that previously entered commands show with a single `🚀`.
-$env.TRANSIENT_PROMPT_COMMAND = {|| "\n\n" }
+$env.TRANSIENT_PROMPT_COMMAND = {|| "\n" }
 # $env.TRANSIENT_PROMPT_INDICATOR = {|| "" }
 # $env.TRANSIENT_PROMPT_INDICATOR_VI_INSERT = {|| "" }
 # $env.TRANSIENT_PROMPT_INDICATOR_VI_NORMAL = {|| "" }
@@ -222,8 +126,8 @@ $env.PATH = (
         ($env.NUPM_HOME | path join "modules")
         '/opt/homebrew/opt/curl/bin'
         '/Users/user/.cargo/bin'
-        '/Users/user/miniconda3/bin'
-        '/Users/user/miniconda3/condabin'
+        # '/Users/user/miniconda3/bin'
+        # '/Users/user/miniconda3/condabin'
         '/opt/homebrew/bin'
         '/opt/homebrew/sbin'
         '/usr/local/bin'
