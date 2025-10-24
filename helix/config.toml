@@ -83,25 +83,6 @@ right = ["selections", "primary-selection-length", "position", "position-percent
 
 # there is one more section with 'keys.select."+"'
 [keys.normal."+"]
-w = ":set soft-wrap.enable false"
-W = ":set soft-wrap.enable true"
-
-c = '''
-:pipe #correct english→
-^claude -p r###########'
-Correct grammar in the text. Respond only with corrected text.
-<text>%{selection}</text>'###########
-'''
-
-d = ":pipe word-diff apply"
-n = "@%s" # timestamp
-t = ':pipe $"<user>\n($in)</user>"'
-
-s = '''
-:pipe-to #xml-coordinate-references→
-r#'<selected-text file="%sh{realpath %{buffer_name}}" lines="%{selection_line_start}-%{selection_line_end}">%{selection}</selected-text>'# | pbcopy
-'''
-
 a = '''
 :append-output #append-commented-results→
 nu -c r###########'%{selection}'########### o+e>| lines
@@ -126,36 +107,41 @@ $lines
 | to text
 '''
 
+c = '''
+:pipe #correct english→
+^claude -p r###########'
+Correct grammar in the text. Respond only with corrected text.
+<text>%{selection}</text>'###########
+'''
+
 C = '''
 :pipe #remove-commented-output
 lines | where $it !~ "^# =>" | to text
 '''
 
+d = ":pipe word-diff apply"
+
 e = '''
 :pipe dotnu-embeds-update.nu
 '''
+
+g = [":run-shell-command git commit -m 'version' '%{buffer_name}'", ":reload"]
+
+n = "@%s" # timestamp
+t = ':pipe $"<user>\n($in)</user>"'
+
+s = '''
+:pipe-to #xml-coordinate-references→
+r#'<selected-text file="%sh{realpath %{buffer_name}}" lines="%{selection_line_start}-%{selection_line_end}">%{selection}</selected-text>'# | pbcopy
+'''
+
+w = ":set soft-wrap.enable false"
+W = ":set soft-wrap.enable true"
+
+
 
 # just a duplicate from keys.normal."+"
 [keys.select."+"]
-w = ":set soft-wrap.enable false"
-W = ":set soft-wrap.enable true"
-
-c = '''
-:pipe #correct english→
-^claude -p r###########'
-Correct grammar in the text. Respond only with corrected text.
-<text>%{selection}</text>'###########
-'''
-
-d = ":pipe word-diff apply"
-n = "@%s" # timestamp
-t = ':pipe $"<user>\n($in)</user>"'
-
-s = '''
-:pipe-to #xml-coordinate-references→
-r#'<selected-text file="%sh{realpath %{buffer_name}}" lines="%{selection_line_start}-%{selection_line_end}">%{selection}</selected-text>'# | pbcopy
-'''
-
 a = '''
 :append-output #append-commented-results→
 nu -c r###########'%{selection}'########### o+e>| lines
@@ -180,11 +166,34 @@ $lines
 | to text
 '''
 
+c = '''
+:pipe #correct english→
+^claude -p r###########'
+Correct grammar in the text. Respond only with corrected text.
+<text>%{selection}</text>'###########
+'''
+
 C = '''
 :pipe #remove-commented-output
 lines | where $it !~ "^# =>" | to text
 '''
 
+d = ":pipe word-diff apply"
+
 e = '''
 :pipe dotnu-embeds-update.nu
 '''
+
+
+n = "@%s" # timestamp
+t = ':pipe $"<user>\n($in)</user>"'
+
+s = '''
+:pipe-to #xml-coordinate-references→
+r#'<selected-text file="%sh{realpath %{buffer_name}}" lines="%{selection_line_start}-%{selection_line_end}">%{selection}</selected-text>'# | pbcopy
+'''
+
+w = ":set soft-wrap.enable false"
+W = ":set soft-wrap.enable true"
+
+
