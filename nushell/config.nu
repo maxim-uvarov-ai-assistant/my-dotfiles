@@ -36,7 +36,7 @@ $env.config.table.header_on_separator = true
 $env.config.table.show_empty = false
 $env.config.table.trim = {
     methodology: "truncating"
-    truncating_suffix: "..."
+    truncating_suffix: "…"
 }
 $env.config.footer_mode = "Always"
 $env.config.highlight_resolved_externals = true
