@@ -64,9 +64,6 @@ flagsWatcher = hs.eventtap.new({hs.eventtap.event.types.flagsChanged}, function(
     -- When Command is pressed, update state based on keyCode.
     if code == 0x37 then
       leftCmdDown = true
-      -- Switch to English immediately on left Cmd press
-      log("Left Cmd pressed → switching to English immediately")
-      setLayout(englishLayout)
     elseif code == 0x36 then
       rightCmdDown = true
     end
@@ -161,16 +158,3 @@ for key, arrow in pairs(navKeys) do
     nil,
     function() hs.eventtap.keyStroke({}, arrow, 0) end)
 end
-
-------------------------------------------------------------------
--- Text replacement: № → #
-------------------------------------------------------------------
-textReplacer = hs.eventtap.new({hs.eventtap.event.types.keyDown}, function(evt)
-  local char = evt:getCharacters()
-  if char == "№" then
-    hs.eventtap.keyStrokes("#")
-    return true  -- suppress the original № character
-  end
-  return false
-end)
-textReplacer:start()
