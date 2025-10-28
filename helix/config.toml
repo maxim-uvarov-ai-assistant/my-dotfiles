@@ -130,9 +130,16 @@ g = [":run-shell-command git commit -m 'version' '%{buffer_name}'", ":reload"]
 n = "@%s" # timestamp
 t = ':pipe $"<user>\n($in)</user>"'
 
-s = '''
+s = [ '''
 :pipe-to #xml-coordinate-references→
 r#'<selected-text file="%sh{realpath %{buffer_name}}" lines="%{selection_line_start}-%{selection_line_end}">%{selection}</selected-text>'# | pbcopy
+''', ":write" ]
+
+v = '''
+:pipe-to #voice
+let input = $in
+use /Users/user/git/kokoro/kokoro1.nu "kokoro pipe-to-file" 
+$input | kokoro pipe-to-file
 '''
 
 w = ":set soft-wrap.enable false"
@@ -188,10 +195,10 @@ e = '''
 n = "@%s" # timestamp
 t = ':pipe $"<user>\n($in)</user>"'
 
-s = '''
+s = [ '''
 :pipe-to #xml-coordinate-references→
 r#'<selected-text file="%sh{realpath %{buffer_name}}" lines="%{selection_line_start}-%{selection_line_end}">%{selection}</selected-text>'# | pbcopy
-'''
+''', ":write" ]
 
 w = ":set soft-wrap.enable false"
 W = ":set soft-wrap.enable true"
