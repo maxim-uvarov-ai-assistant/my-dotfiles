@@ -51,6 +51,32 @@ export def push-to-local-configs [
     | each { cp $in.path-in-repo $in.full-path }
 }
 
+export def preview-push-to-local-configs [] {
+    open-local-configs
+    | where status =~ '^update|ignore'
+    | update path-in-repo { path expand --no-symlink }
+    | append (open-configs)
+    | uniq-by path-in-repo
+    | where status? != ignore
+    | where {|i| $i.path-in-repo | is-not-empty }
+    | each {|row|
+        if ($row.full-path | path exists) {
+            # Shows what will change: diff current-local new-from-repo
+            let diff = (do -i { ^git diff --no-index $row.full-path $row.path-in-repo } | complete)
+            if ($diff.stdout | is-not-empty) {
+                print $"\n=== ($row.full-path) ==="
+                $diff.stdout | lines | skip 4 | str join (char newline) | print
+            }
+        } else {
+            print $"\n=== ($row.full-path) ==="
+            print $"(ansi yellow)→ NEW FILE will be created(ansi reset)"
+            if ($row.full-path | path dirname | path exists) {} else {
+                print $"(ansi red)  ⚠ Parent directory does not exist: ($row.full-path | path dirname)(ansi reset)"
+            }
+        }
+    }
+}
+
 export def fill-candidates [] {
     let configs = open-configs
 
