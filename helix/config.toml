@@ -125,9 +125,9 @@ e = '''
 :pipe dotnu-embeds-update.nu
 '''
 
-g = [":run-shell-command git commit -m 'version' '%{buffer_name}'", ":reload"]
+g = [":run-shell-command git add '%{buffer_name}'; git commit -m 'version' '%{buffer_name}'"]
 
-n = "@%s" # timestamp
+n = ":append-output date now | format date %%J-%%Q" # timestamp 
 t = ':pipe $"<user>\n($in)</user>"'
 
 s = [ '''
