@@ -53,6 +53,10 @@ tab = "move_parent_node_end"
 S-tab = "move_parent_node_start"
 A-l = [":w", ":new", ":insert-output lazygit", ":buffer-close!", ":reload"]
 
+'C-w' = ":write!"
+'C-r' = ":reload"
+'C-S-g' = ":pipe-to git add '%{buffer_name}'; git commit -m 'version %{buffer_name}' '%{buffer_name}'; sleep 0.8sec"
+
 [keys.insert]
 # j = { j = "normal_mode" }
 C-right = "move_next_word_start"
@@ -125,7 +129,12 @@ e = '''
 :pipe dotnu-embeds-update.nu
 '''
 
-g = [":run-shell-command git add '%{buffer_name}'; git commit -m 'version' '%{buffer_name}'"]
+f = '''
+:pipe #flatten-to-nuon
+nu -c r###########'%{selection}'########### o+e>| to nuon
+'''
+
+g = "@<C-w><C-S-g><C-r>"
 
 n = ":append-output date now | format date %%J-%%Q" # timestamp 
 t = ':pipe $"<user>\n($in)</user>"'
@@ -144,63 +153,4 @@ $input | kokoro pipe-to-file
 
 w = ":set soft-wrap.enable false"
 W = ":set soft-wrap.enable true"
-
-
-
-# just a duplicate from keys.normal."+"
-[keys.select."+"]
-a = '''
-:append-output #append-commented-results→
-nu -c r###########'%{selection}'########### o+e>| lines
-| each { $"# => ($in)"}
-| if r###########'%{selection}'########### ends-with "\n" {} else {prepend ''}
-| to text
-'''
-
-
-A = '''
-:append-output #append-abreviated-results→
-let lines = nu -c r###########'%{selection}'########### o+e>| lines
-
-let len = $lines | length;
-
-$lines
-| if $len > 7 {
-  first 7 | append $'... and ($len - 7) more lines'
-} else {}
-| each {$"# => ($in)"}
-| if r###########'%{selection}'########### ends-with "\n" {} else {prepend ''}
-| to text
-'''
-
-c = '''
-:pipe #correct english→
-^claude -p r###########'
-Correct grammar in the text. Respond only with corrected text.
-<text>%{selection}</text>'###########
-'''
-
-C = '''
-:pipe #remove-commented-output
-lines | where $it !~ "^# =>" | to text
-'''
-
-d = ":pipe word-diff apply"
-
-e = '''
-:pipe dotnu-embeds-update.nu
-'''
-
-
-n = "@%s" # timestamp
-t = ':pipe $"<user>\n($in)</user>"'
-
-s = [ '''
-:pipe-to #xml-coordinate-references→
-r#'<selected-text file="%sh{realpath %{buffer_name}}" lines="%{selection_line_start}-%{selection_line_end}">%{selection}</selected-text>'# | pbcopy
-''', ":write" ]
-
-w = ":set soft-wrap.enable false"
-W = ":set soft-wrap.enable true"
-
 
