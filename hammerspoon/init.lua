@@ -96,16 +96,31 @@ log("Initial layout: " .. hs.keycodes.currentLayout())
 escWatcher = hs.eventtap.new({hs.eventtap.event.types.keyDown}, function(evt)
   local keyCode = evt:getKeyCode()
   local flags = evt:getFlags()
-  
+
   -- Check if ESC key (keyCode 53) is pressed without modifiers
   if keyCode == 53 and not (flags.cmd or flags.alt or flags.ctrl or flags.shift) then
     log("ESC pressed → switching to English layout")
     hs.timer.doAfter(0.001, function() setLayout(englishLayout) end)
   end
-  
+
   return false
 end)
 escWatcher:start()
+
+-- Ctrl + Shift + Space to switch to English layout (pass-through)
+ctrlShiftSpaceWatcher = hs.eventtap.new({hs.eventtap.event.types.keyDown}, function(evt)
+  local keyCode = evt:getKeyCode()
+  local flags = evt:getFlags()
+
+  -- Check if Space key (keyCode 49) is pressed with Ctrl + Shift
+  if keyCode == 49 and flags.ctrl and flags.shift and not flags.cmd and not flags.alt then
+    log("Ctrl + Shift + Space pressed → switching to English layout")
+    setLayout(englishLayout)
+  end
+
+  return false  -- pass the key combination through to other applications
+end)
+ctrlShiftSpaceWatcher:start()
 
 -- ~/.hammerspoon/init.lua
 
