@@ -115,7 +115,7 @@ ctrlShiftSpaceWatcher = hs.eventtap.new({hs.eventtap.event.types.keyDown}, funct
   -- Check if Space key (keyCode 49) is pressed with Ctrl + Shift
   if keyCode == 49 and flags.ctrl and flags.shift and not flags.cmd and not flags.alt then
     log("Ctrl + Shift + Space pressed → switching to English layout")
-    setLayout(englishLayout)
+    hs.timer.doAfter(0.001, function() setLayout(englishLayout) end)
   end
 
   return false  -- pass the key combination through to other applications
