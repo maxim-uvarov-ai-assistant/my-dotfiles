@@ -15,7 +15,9 @@ full-path,path-in-repo
 ~/.config/helix/config-no-wrap.toml,helix/config-no-wrap.toml
 ~/.config/helix/config.toml,helix/config.toml
 ~/.config/helix/languages.toml,helix/languages.toml
+~/.config/lazygit/config.yml,lazygit/config.yml
 ~/.config/nushell/autoload/br.nu,nushell/autoload/br.nu
+~/.config/nushell/autoload/carapace-config.nu,nushell/autoload/carapace-config.nu
 ~/.config/nushell/autoload/zzz_ignore_vars.nu,nushell/autoload/zzz_ignore_vars.nu
 ~/.config/nushell/config.nu,nushell/config.nu
 ~/.config/nushell/env.nu,nushell/env.nu
