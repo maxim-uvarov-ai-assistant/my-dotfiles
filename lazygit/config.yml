@@ -2,3 +2,12 @@ git:
   pagers:
     - colorArg: always
       pager: delta --dark --paging=never --line-numbers --side-by-side --wrap-max-lines unlimited
+customCommands:
+  - key: 'E'
+    context: 'files'
+    command: 'zellij edit {{.SelectedFile.Name}}'
+    description: 'Edit file in Zellij'
+  - key: 'E'
+    context: 'commitFiles'
+    command: 'zellij edit {{.SelectedFile.Name}}'
+    description: 'Edit file in Zellij'
