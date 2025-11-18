@@ -118,6 +118,7 @@ special_paths: {
         list: "never"
         sum: "never"
     }
+    "__pycache__": { "show": "never" }
     "~/.config": { "show": "always" }
     ".claude": {  "show": "always" }
 }
