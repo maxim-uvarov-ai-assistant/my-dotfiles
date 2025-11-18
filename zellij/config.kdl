@@ -159,14 +159,11 @@ keybinds clear-defaults=true {
 
         bind "PageDown" { PageScrollDown; }
         bind "PageUp" { PageScrollUp; }
+        bind "Shift PageDown" { HalfPageScrollDown; }
+        bind "Shift PageUp" { HalfPageScrollUp; }
 
         bind "Super m" { ToggleFocusFullscreen; }
-        bind "Super Shift e" {
-            DumpScreen "/tmp/zellij-screen.txt";
-            Run "hx" "--config" "/Users/user/.config/helix/config-no-wrap.toml" "/tmp/zellij-screen.txt" {
-                close_on_exit true
-            };
-        }
+        bind "Super Shift e" { EditScrollback; }
         // bind "Super T" {
         //     NewTab {
         //         cwd "/Users/user/temp/"
