@@ -137,6 +137,7 @@ nu -c r###########'%{selection}'########### o+e>| to nuon
 g = "@<C-w><C-S-g><C-r>"
 
 n = ":append-output date now | format date %%J-%%Q" # timestamp 
+p = ":pipe pandoc --from markdown --to markdown"
 t = ':pipe $"<user>\n($in)</user>"'
 
 s = [ '''
