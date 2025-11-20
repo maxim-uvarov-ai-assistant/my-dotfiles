@@ -52,12 +52,7 @@ export def push-to-local-configs [
 }
 
 export def preview-push-to-local-configs [] {
-    open-local-configs
-    | where status =~ '^update|ignore'
-    | update path-in-repo { path expand --no-symlink }
-    | append (open-configs)
-    | uniq-by path-in-repo
-    | where status? != ignore
+    assemble-paths
     | where {|i| $i.path-in-repo | is-not-empty }
     | each {|row|
         if ($row.full-path | path exists) {
