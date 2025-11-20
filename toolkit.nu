@@ -65,7 +65,7 @@ export def preview-push-to-local-configs [] {
         } else {
             print $"\n=== ($row.full-path) ==="
             print $"(ansi yellow)→ NEW FILE will be created(ansi reset)"
-            if ($row.full-path | path dirname | path exists) { } else {
+            if not ($row.full-path | path dirname | path exists) {
                 print $"(ansi red)  ⚠ Parent directory does not exist: ($row.full-path | path dirname)(ansi reset)"
             }
         }
