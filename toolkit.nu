@@ -12,14 +12,19 @@ def open-local-configs [] {
     | update path-in-repo { path expand --no-symlink }
 }
 
-export def pull-from-local-configs [
-    --check-local-files-exist
-] {
+def assemble-paths [] {
     open-local-configs
     | where status =~ '^update|ignore'
+    | update path-in-repo { path expand --no-symlink } # needed for push-to-local-configs
     | append (open-configs)
     | uniq-by path-in-repo
     | where status? != ignore
+}
+
+export def pull-from-local-configs [
+    --check-local-files-exist
+] {
+    assemble-paths
     | where {|i| $i.full-path | path exists }
     | group-by { $in.path-in-repo | path dirname }
     | items {|dirname v|
@@ -33,12 +38,7 @@ export def pull-from-local-configs [
 export def push-to-local-configs [
     --create-dirs # in case of missing directories - create them in place
 ] {
-    open-local-configs
-    | where status =~ '^update|ignore'
-    | update path-in-repo { path expand --no-symlink }
-    | append (open-configs)
-    | uniq-by path-in-repo
-    | where status? != ignore
+    assemble-paths
     | where {|i| $i.path-in-repo | is-not-empty }
     | group-by { $in.full-path | path dirname }
     | items {|dirname v|
@@ -70,7 +70,7 @@ export def preview-push-to-local-configs [] {
         } else {
             print $"\n=== ($row.full-path) ==="
             print $"(ansi yellow)→ NEW FILE will be created(ansi reset)"
-            if ($row.full-path | path dirname | path exists) {} else {
+            if ($row.full-path | path dirname | path exists) { } else {
                 print $"(ansi red)  ⚠ Parent directory does not exist: ($row.full-path | path dirname)(ansi reset)"
             }
         }
