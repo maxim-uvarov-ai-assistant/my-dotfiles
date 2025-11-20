@@ -57,7 +57,7 @@ export def preview-push-to-local-configs [] {
     | each {|row|
         if ($row.full-path | path exists) {
             # Shows what will change: diff current-local new-from-repo
-            let diff = (do -i { ^git diff --no-index $row.full-path $row.path-in-repo } | complete)
+            let diff = ^git diff --no-index $row.full-path $row.path-in-repo | complete
             if ($diff.stdout | is-not-empty) {
                 print $"\n=== ($row.full-path) ==="
                 $diff.stdout | lines | skip 4 | str join (char newline) | print
