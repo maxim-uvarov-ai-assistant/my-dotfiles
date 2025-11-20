@@ -10,6 +10,7 @@ full-path,path-in-repo
 ~/.claude/commands/git-improve-history.md,claude/commands/git-improve-history.md
 ~/.claude/commands/markdown-task-master-en.md,claude/commands/markdown-task-master-en.md
 ~/.claude/commands/optimize-claude-md.md,claude/commands/optimize-claude-md.md
+~/.claude/output-styles/,claude/output-styles/
 ~/.config/ghostty/config,ghostty/config
 ~/.hammerspoon/init.lua,hammerspoon/init.lua
 ~/.config/helix/config-no-wrap.toml,helix/config-no-wrap.toml
