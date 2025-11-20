@@ -21,7 +21,7 @@ def assemble-paths [] {
     | where status? != ignore
 }
 
-export def pull-from-local-configs [
+export def pull-from-machine [
     --check-local-files-exist
 ] {
     assemble-paths
@@ -35,7 +35,7 @@ export def pull-from-local-configs [
     | each { cp $in.full-path $in.path-in-repo }
 }
 
-export def push-to-local-configs [
+export def push-to-machine [
     --create-dirs # in case of missing directories - create them in place
 ] {
     assemble-paths
@@ -51,7 +51,7 @@ export def push-to-local-configs [
     | each { cp $in.path-in-repo $in.full-path }
 }
 
-export def preview-push-to-local-configs [] {
+export def preview-push-to-machine [] {
     assemble-paths
     | where {|i| $i.path-in-repo | is-not-empty }
     | each {|row|
