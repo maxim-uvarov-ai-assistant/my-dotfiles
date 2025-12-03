@@ -9,8 +9,7 @@ def open-configs [] {
 def open-local-configs [] {
     'paths-local.csv'
     | if ($in | path exists) { open } else { [] }
-    | update path-in-repo? { path expand --no-symlink }
-    | where ($it.status | is-not-empty)
+    | update path-in-repo { path expand --no-symlink }
 }
 
 def assemble-paths [] {
