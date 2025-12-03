@@ -24,7 +24,7 @@ verbs: [
     {
         invocation: edit
         shortcut: e
-        execution: "hx {file}"
+        execution: "hx {file}:{line}"
         leave_broot: true
         from_shell: true
     }
