@@ -132,7 +132,7 @@ git log --format="Commit %h by %an <%ae>%n  Date: %ad%n  Subject: %s%n  Body: %b
 ```
 
 Common issues to look for:
-- Vague messages like "fix", "update", "changes"
+- Vague messages like "version", "fix", "update", "changes"
 - Missing context about WHY changes were made
 - Grammar or spelling errors
 - Not following conventional commit format
