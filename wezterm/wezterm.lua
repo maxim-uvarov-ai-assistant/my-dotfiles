@@ -74,8 +74,10 @@ local function find_executable(cmd)
   end
 end
 
+-- Store nu_path globally for use in keybindings
+local nu_path = find_executable('nu')
+
 local function setup_shell()
-  local nu_path = find_executable('nu')
   if not nu_path then
     wezterm.log_info("Nushell not found, using system default shell")
     return
@@ -193,8 +195,10 @@ config.keys = {
   { key = 'l', mods = 'CMD|SHIFT',  action = wezterm.action.SendString '\x1b[108;10u' },
   -- cmd+shift+m
   { key = 'm', mods = 'CMD|SHIFT',  action = wezterm.action.SendString '\x1b[109;10u' },
-  -- cmd+shift+n (new window)
-  { key = 'n', mods = 'CMD|SHIFT',  action = wezterm.action.SpawnWindow },
+  -- cmd+shift+n (new window with pure nushell)
+  { key = 'n', mods = 'CMD|SHIFT',  action = wezterm.action.SpawnCommandInNewWindow {
+    args = { nu_path or 'nu' }
+  }},
   -- cmd+shift+o
   { key = 'o', mods = 'CMD|SHIFT',  action = wezterm.action.SendString '\x1b[111;10u' },
   -- cmd+shift+p
