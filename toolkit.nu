@@ -9,7 +9,7 @@ def open-configs [] {
 def open-local-configs [] {
     'paths-local.csv'
     | if ($in | path exists) { open } else { [] }
-    | update path-in-repo { path expand --no-symlink }
+    | update path-in-repo? { path expand --no-symlink }
 }
 
 def assemble-paths [] {
@@ -32,7 +32,7 @@ export def pull-from-machine [
     }
     | compact
     | flatten
-    | each { cp $in.full-path $in.path-in-repo }
+    | each { cp --recursive $in.full-path $in.path-in-repo }
 }
 
 export def push-to-machine [
@@ -48,7 +48,7 @@ export def push-to-machine [
     }
     | compact
     | flatten
-    | each { cp $in.path-in-repo $in.full-path }
+    | each { cp --recursive $in.path-in-repo $in.full-path }
 }
 
 export def preview-push-to-machine [] {
