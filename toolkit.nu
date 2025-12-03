@@ -1,5 +1,20 @@
 export def main [] { }
 
+# Check if a file has uncommitted changes in its git repository
+def has-uncommitted-changes [path: path] {
+    if not ($path | path exists) { return false }
+
+    let dir = if ($path | path type) == 'dir' { $path } else { $path | path dirname }
+
+    # Check if inside a git repo
+    let git_check = do { cd $dir; ^git rev-parse --git-dir } | complete
+    if $git_check.exit_code != 0 { return false }
+
+    # Check for uncommitted changes (staged or unstaged)
+    let status = do { cd $dir; ^git status --porcelain -- $path } | complete
+    ($status.stdout | str trim | is-not-empty)
+}
+
 def open-configs [] {
     open paths-default.csv
     | update full-path { path expand --no-symlink }
@@ -23,9 +38,22 @@ def assemble-paths [] {
 
 export def pull-from-machine [
     --check-local-files-exist
+    --force # overwrite files with uncommitted changes
 ] {
-    assemble-paths
+    let paths = assemble-paths
     | where {|i| $i.full-path | path exists }
+
+    if not $force {
+        let dirty = $paths | where { has-uncommitted-changes $in.path-in-repo }
+        if ($dirty | is-not-empty) {
+            print $"(ansi red)Error: The following repo files have uncommitted changes:(ansi reset)"
+            $dirty | get path-in-repo | each { print $"  ($in)" }
+            print $"\nCommit or stash changes first, or use --force to overwrite."
+            return
+        }
+    }
+
+    $paths
     | group-by { $in.path-in-repo | path dirname }
     | items {|dirname v|
         if ($dirname | path exists) { $v } else { mkdir $dirname; $v }
@@ -37,9 +65,22 @@ export def pull-from-machine [
 
 export def push-to-machine [
     --create-dirs # in case of missing directories - create them in place
+    --force # overwrite files with uncommitted changes
 ] {
-    assemble-paths
+    let paths = assemble-paths
     | where {|i| $i.path-in-repo | is-not-empty }
+
+    if not $force {
+        let dirty = $paths | where { has-uncommitted-changes $in.full-path }
+        if ($dirty | is-not-empty) {
+            print $"(ansi red)Error: The following destination files have uncommitted changes:(ansi reset)"
+            $dirty | get full-path | each { print $"  ($in)" }
+            print $"\nCommit or stash changes first, or use --force to overwrite."
+            return
+        }
+    }
+
+    $paths
     | group-by { $in.full-path | path dirname }
     | items {|dirname v|
         if ($dirname | path exists) { $v } else {
