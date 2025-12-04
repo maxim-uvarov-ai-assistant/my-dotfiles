@@ -159,8 +159,8 @@ keybinds clear-defaults=true {
 
         bind "PageDown" { PageScrollDown; }
         bind "PageUp" { PageScrollUp; }
-        bind "Shift PageDown" { HalfPageScrollDown; }
-        bind "Shift PageUp" { HalfPageScrollUp; }
+        bind "Shift PageDown" { ScrollDown; }
+        bind "Shift PageUp" { ScrollUp; }
 
         bind "Super m" { ToggleFocusFullscreen; }
         bind "Super Shift e" {
