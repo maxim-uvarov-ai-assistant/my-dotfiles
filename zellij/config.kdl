@@ -494,7 +494,7 @@ scrollback_editor "/opt/homebrew/bin/hx --config /Users/user/.config/helix/confi
 // (Requires restart)
 // Default: false
 //
-// disable_session_metadata true
+disable_session_metadata true
 
 // Enable or disable support for the enhanced Kitty Keyboard Protocol (the host terminal must also support it)
 // (Requires restart)
