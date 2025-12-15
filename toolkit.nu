@@ -1,3 +1,17 @@
+# Dotfiles synchronization toolkit
+#
+# Manages syncing configuration files between this Git repository and the local machine.
+# Uses two CSV files for configuration:
+#   - paths-default.csv: Main list of tracked dotfiles (full-path, path-in-repo)
+#   - paths-local.csv: Optional local overrides with status column (update, ignore)
+#
+# Commands:
+#   pull-from-machine        - Copy configs from machine into repo
+#   push-to-machine          - Copy configs from repo to machine
+#   preview-push-to-machine  - Show diff of what push would change
+#   fill-candidates          - Find new config files to potentially track
+#   cleanup-paths-not-in-csv - List repo files not tracked in CSV
+
 export def main [] { }
 
 # Check if a file has uncommitted changes in its git repository
@@ -15,18 +29,21 @@ def has-uncommitted-changes [path: path] {
     ($status.stdout | str trim | is-not-empty)
 }
 
+# Read paths-default.csv and expand all paths
 def open-configs [] {
     open paths-default.csv
     | update full-path { path expand --no-symlink }
     | update path-in-repo { path expand --no-symlink }
 }
 
+# Read paths-local.csv if it exists, otherwise return empty list
 def open-local-configs [] {
     'paths-local.csv'
     | if ($in | path exists) { open } else { [] }
     | update path-in-repo? { path expand --no-symlink }
 }
 
+# Merge local and default configs, applying ignore/update status and deduplication
 def assemble-paths [] {
     open-local-configs
     | where status =~ '^update|ignore'
@@ -36,6 +53,7 @@ def assemble-paths [] {
     | where status? != ignore
 }
 
+# Copy config files from the local machine into the repository
 export def pull-from-machine [
     --check-local-files-exist
     --force # overwrite files with uncommitted changes
@@ -63,6 +81,7 @@ export def pull-from-machine [
     | each { cp --recursive $in.full-path $in.path-in-repo }
 }
 
+# Copy config files from the repository to the local machine
 export def push-to-machine [
     --create-dirs # in case of missing directories - create them in place
     --force # overwrite files with uncommitted changes
@@ -92,6 +111,7 @@ export def push-to-machine [
     | each { cp --recursive $in.path-in-repo $in.full-path }
 }
 
+# Show a diff preview of what push-to-machine would change
 export def preview-push-to-machine [] {
     assemble-paths
     | where {|i| $i.path-in-repo | is-not-empty }
@@ -113,6 +133,7 @@ export def preview-push-to-machine [] {
     }
 }
 
+# Scan tracked directories for new config files and update paths-local.csv
 export def fill-candidates [] {
     let configs = open-configs
 
@@ -166,6 +187,7 @@ export def fill-candidates [] {
     | save -f paths-local.csv
 }
 
+# List files in the repo that are not tracked in paths-default.csv
 export def cleanup-paths-not-in-csv [] {
     let exist_paths = glob **/* --exclude [**/.git/** **/.jj/** toolkit.nu macos-fresh/* paths-default.csv README.md .gitignore] --no-dir
 
