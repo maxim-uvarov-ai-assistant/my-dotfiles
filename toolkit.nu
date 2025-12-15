@@ -226,12 +226,36 @@ export def cleanup-paths-not-in-csv [] {
 }
 
 # Migrate old two-column paths-default.csv to new single-column format
-export def migrate-csv [] {
+export def migrate-csv [
+    --force # proceed even if derived paths don't match old paths
+] {
     let csv = open paths-default.csv
     let columns = $csv | columns
 
     if 'path-in-repo' in $columns {
-        print "Migrating paths-default.csv from old format (full-path, path-in-repo) to new format (full-path only)..."
+        # Check for mismatches between old path-in-repo and derived paths
+        let mismatches = $csv | each {|row|
+            let derived = derive-repo-path $row.full-path
+            if $derived != $row.path-in-repo {
+                {full-path: $row.full-path, old: $row.path-in-repo, derived: $derived}
+            }
+        } | compact
+
+        if ($mismatches | is-not-empty) {
+            print $"(ansi yellow)Warning: The following paths have custom mappings that differ from derived paths:(ansi reset)"
+            $mismatches | each {|m|
+                print $"  ($m.full-path)"
+                print $"    old:     ($m.old)"
+                print $"    derived: ($m.derived)"
+            }
+            if not $force {
+                print $"\n(ansi red)Migration aborted. Use --force to proceed anyway.(ansi reset)"
+                return
+            }
+            print $"\n(ansi yellow)Proceeding with --force. Custom mappings will be lost.(ansi reset)"
+        }
+
+        print "Migrating paths-default.csv from old format to new format..."
         $csv
         | each {|row|
             # Convert directory entries (trailing /) to glob patterns
@@ -243,8 +267,7 @@ export def migrate-csv [] {
         }
         | wrap full-path
         | save -f paths-default.csv
-        print "Migration complete. The path-in-repo column has been removed."
-        print "Repo paths are now derived automatically using convention:"
+        print "Migration complete. Repo paths are now derived using convention:"
         print "  ~/.config/X/... → X/..."
         print "  ~/.X/...        → X/..."
     } else {
