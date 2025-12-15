@@ -45,11 +45,12 @@ def open-local-configs [] {
 
 # Merge local and default configs, applying ignore/update status and deduplication
 def assemble-paths [] {
-    open-local-configs
-    | where status =~ '^update|ignore'
-    | update path-in-repo { path expand --no-symlink } # needed for push-to-local-configs
-    | append (open-configs)
-    | uniq-by path-in-repo
+    let local_statuses = open-local-configs
+        | where status =~ '^update|ignore'
+        | select full-path status
+
+    open-configs
+    | join --left $local_statuses full-path
     | where status? != ignore
 }
 
