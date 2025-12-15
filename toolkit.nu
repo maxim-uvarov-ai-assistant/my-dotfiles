@@ -2,7 +2,8 @@
 #
 # Manages syncing configuration files between this Git repository and the local machine.
 # Uses two CSV files for configuration:
-#   - paths-default.csv: Main list of tracked dotfiles (full-path, path-in-repo)
+#   - paths-default.csv: Single column (full-path) with glob patterns. Repo paths are derived:
+#     ~/.config/X/... → X/...  |  ~/.X/... → X/...
 #   - paths-local.csv: Optional local overrides with status column (update, ignore)
 #
 # Commands:
@@ -11,6 +12,7 @@
 #   preview-push-to-machine  - Show diff of what push would change
 #   fill-candidates          - Find new config files to potentially track
 #   cleanup-paths-not-in-csv - List repo files not tracked in CSV
+#   migrate-csv              - Convert old two-column CSV to new single-column format
 
 export def main [] { }
 
@@ -29,18 +31,44 @@ def has-uncommitted-changes [path: path] {
     ($status.stdout | str trim | is-not-empty)
 }
 
-# Read paths-default.csv and expand all paths
+# Derive repo path from full machine path using convention:
+#   ~/.config/X/... → X/...
+#   ~/.X/...        → X/...
+def derive-repo-path [fullpath: string] {
+    let expanded = $fullpath | path expand --no-symlink
+    let home = $nu.home-path
+    let config_prefix = $home | path join '.config'
+
+    if ($expanded | str starts-with $config_prefix) {
+        $expanded | str replace $"($config_prefix)/" ''
+    } else if ($expanded | str starts-with $"($home)/.") {
+        $expanded | str replace $"($home)/." ''
+    } else {
+        $expanded | str replace $"($home)/" ''
+    }
+}
+
+# Read paths-default.csv, expand globs, and derive repo paths
 def open-configs [] {
     open paths-default.csv
-    | update full-path { path expand --no-symlink }
-    | update path-in-repo { path expand --no-symlink }
+    | get full-path
+    | each {|pattern|
+        let expanded = $pattern | path expand --no-symlink
+        # Check if it's a glob pattern
+        if ($pattern =~ '\*') {
+            glob $expanded --no-dir | each {|file| {full-path: $file, path-in-repo: (derive-repo-path $file)}}
+        } else {
+            [{full-path: $expanded, path-in-repo: (derive-repo-path $expanded)}]
+        }
+    }
+    | flatten
 }
 
 # Read paths-local.csv if it exists, otherwise return empty list
 def open-local-configs [] {
     'paths-local.csv'
     | if ($in | path exists) { open } else { [] }
-    | update path-in-repo? { path expand --no-symlink }
+    | update full-path { path expand --no-symlink }
 }
 
 # Merge local and default configs, applying ignore/update status and deduplication
@@ -79,7 +107,7 @@ export def pull-from-machine [
     }
     | compact
     | flatten
-    | each { cp --recursive $in.full-path $in.path-in-repo }
+    | each { cp $in.full-path $in.path-in-repo }
 }
 
 # Copy config files from the repository to the local machine
@@ -88,7 +116,7 @@ export def push-to-machine [
     --force # overwrite files with uncommitted changes
 ] {
     let paths = assemble-paths
-    | where {|i| $i.path-in-repo | is-not-empty }
+    | where {|i| $i.path-in-repo | path exists }
 
     if not $force {
         let dirty = $paths | where { has-uncommitted-changes $in.full-path }
@@ -109,13 +137,13 @@ export def push-to-machine [
     }
     | compact
     | flatten
-    | each { cp --recursive $in.path-in-repo $in.full-path }
+    | each { cp $in.path-in-repo $in.full-path }
 }
 
 # Show a diff preview of what push-to-machine would change
 export def preview-push-to-machine [] {
     assemble-paths
-    | where {|i| $i.path-in-repo | is-not-empty }
+    | where {|i| $i.path-in-repo | path exists }
     | each {|row|
         if ($row.full-path | path exists) {
             # Shows what will change: diff current-local new-from-repo
@@ -192,7 +220,34 @@ export def fill-candidates [] {
 export def cleanup-paths-not-in-csv [] {
     let exist_paths = glob **/* --exclude [**/.git/** **/.jj/** toolkit.nu macos-fresh/* paths-default.csv README.md .gitignore] --no-dir
 
-    let paths_in_csv = open paths-default.csv | get path-in-repo
+    let paths_in_csv = open-configs | get path-in-repo
 
     $exist_paths | path relative-to (pwd) | where $it not-in $paths_in_csv
+}
+
+# Migrate old two-column paths-default.csv to new single-column format
+export def migrate-csv [] {
+    let csv = open paths-default.csv
+    let columns = $csv | columns
+
+    if 'path-in-repo' in $columns {
+        print "Migrating paths-default.csv from old format (full-path, path-in-repo) to new format (full-path only)..."
+        $csv
+        | each {|row|
+            # Convert directory entries (trailing /) to glob patterns
+            if ($row.full-path | str ends-with '/') {
+                $row.full-path | str replace '/$' '/**/*'
+            } else {
+                $row.full-path
+            }
+        }
+        | wrap full-path
+        | save -f paths-default.csv
+        print "Migration complete. The path-in-repo column has been removed."
+        print "Repo paths are now derived automatically using convention:"
+        print "  ~/.config/X/... → X/..."
+        print "  ~/.X/...        → X/..."
+    } else {
+        print "paths-default.csv is already in the new format (single full-path column)."
+    }
 }
