@@ -3,13 +3,8 @@ full-path
 ~/.config/broot/select.hjson
 ~/.config/broot/verbs.hjson
 ~/.claude/CLAUDE.md
-~/.claude/agents/agent-commit-git.md
-~/.claude/agents/agent-markdown-task-master.md
-~/.claude/agents/agent-simple-reviewer.md
-~/.claude/commands/commit-git.md
-~/.claude/commands/git-improve-history.md
-~/.claude/commands/markdown-task-master-en.md
-~/.claude/commands/optimize-claude-md.md
+~/.claude/agents/*.md
+~/.claude/commands/*.md
 ~/.claude/output-styles/**/*
 ~/.config/ghostty/config
 ~/.hammerspoon/init.lua
