@@ -1,5 +1,5 @@
 font-family = Cascadia Mono NF
-font-size = 28
+font-size = 20
 adjust-cursor-thickness = 750%
 theme = Wez
 selection-invert-fg-bg = true
@@ -10,7 +10,7 @@ command = env XDG_CONFIG_HOME=/Users/user/.config XDG_DATA_HOME=/Users/user/.loc
 quit-after-last-window-closed = true
 
 maximize = true
-fullscreen = true
+fullscreen = false
 
 working-directory = /Users/user/git/nushell-show
 
