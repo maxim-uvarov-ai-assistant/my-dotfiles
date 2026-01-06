@@ -117,7 +117,7 @@ $env.config.keybindings ++= [
 
 $env.config.keybindings ++= [
     {
-        name: swap_graphemes
+        name: previous_history_item
         modifier: alt
         keycode: Up
         mode: emacs
@@ -131,7 +131,7 @@ $env.config.keybindings ++= [
 # ───────────────────────────────────────────────────────────────────────────────
 $env.config.keybindings ++= [
     {
-        name: swap_graphemes
+        name: next_history_item
         modifier: alt
         keycode: Down
         mode: emacs
@@ -652,3 +652,4 @@ $env.config.menus ++= [
 # mind that there is another invocation in
 # /Users/user/.config/nushell/autoload/zzz_ignore_vars.nu
 $env.ignore-env-vars = (scope variables | get name)
+source $"($nu.home-path)/.cargo/env.nu"
