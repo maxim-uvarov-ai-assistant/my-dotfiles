@@ -34,10 +34,11 @@ Based on the above changes:
 
 ## Important Notes for AI Agents
 
+- **Commit exact files by default** - always use `jj commit <specific-files> -m 'message'` to commit only the intended files
 - **NEVER use interactive commands** like `jj split` without files, `jj squash -i`, or `jj resolve`
 - **Always specify `-m` flag** to avoid interactive editor
 - **Working copy is automatically committed** - changes are tracked immediately
-- **Use file-specific operations** for selective commits: `jj squash <files>`
+- **Use file-specific operations** for selective commits: `jj squash <files>` or `jj commit <files>`
 - **No staging area** - all changes in working copy are included unless specified otherwise
 
 ## Commit message conventions
