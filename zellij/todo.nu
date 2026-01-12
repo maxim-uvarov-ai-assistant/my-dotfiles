@@ -52,5 +52,7 @@ export def create-todo [] {
     open $path
     | if $in == $frontmatter { rm $path }
 
-    if (ls 'todo' | is-empty) { rm 'todo' }
+    if (ls 'todo' | is-empty) { rm 'todo' } else {
+        cp (path self | path dirname | path join 'CLAUDE.md' | tee { print $in abc }) todo/
+    }
 }
