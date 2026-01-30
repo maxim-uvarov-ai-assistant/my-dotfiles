@@ -21,6 +21,4 @@ full-path
 ~/.config/zellij/config.kdl
 ~/.config/zellij/layouts/compact-bar-up.kdl
 ~/.config/zellij/layouts/compact-bar-up.swap.kdl
-~/.config/zellij/todo-hx.nu
-~/.config/zellij/todo.nu
-~/.config/zellij/CLAUDE.md
+~/.config/zellij/todo-nu/
