@@ -36,7 +36,7 @@ def has-uncommitted-changes [path: path] {
 #   ~/.X/...        → X/...
 def derive-repo-path [fullpath: string] {
     let expanded = $fullpath | path expand --no-symlink
-    let home = $nu.home-path
+    let home = $nu.home-dir
     let config_prefix = $home | path join '.config'
 
     if ($expanded | str starts-with $config_prefix) {
@@ -56,9 +56,9 @@ def open-configs [] {
         let expanded = $pattern | path expand --no-symlink
         # Check if it's a glob pattern
         if ($pattern =~ '\*') {
-            glob $expanded --no-dir | each {|file| {full-path: $file, path-in-repo: (derive-repo-path $file)}}
+            glob $expanded --no-dir | each {|file| {full-path: $file path-in-repo: (derive-repo-path $file)} }
         } else {
-            [{full-path: $expanded, path-in-repo: (derive-repo-path $expanded)}]
+            [{full-path: $expanded path-in-repo: (derive-repo-path $expanded)}]
         }
     }
     | flatten
@@ -74,8 +74,8 @@ def open-local-configs [] {
 # Merge local and default configs, applying ignore/update status and deduplication
 def assemble-paths [] {
     let local_statuses = open-local-configs
-        | where status =~ '^update|ignore'
-        | select full-path status
+    | where status =~ '^update|ignore'
+    | select full-path status
 
     open-configs
     | join --left $local_statuses full-path
@@ -191,7 +191,7 @@ export def fill-candidates [] {
     let candidates = $configs
     | get full-path
     | path dirname
-    | where $it != $nu.home-path
+    | where $it != $nu.home-dir
     | uniq
     | each {
         path join '**/*'
@@ -237,7 +237,7 @@ export def migrate-csv [
         let mismatches = $csv | each {|row|
             let derived = derive-repo-path $row.full-path
             if $derived != $row.path-in-repo {
-                {full-path: $row.full-path, old: $row.path-in-repo, derived: $derived}
+                {full-path: $row.full-path old: $row.path-in-repo derived: $derived}
             }
         } | compact
 
