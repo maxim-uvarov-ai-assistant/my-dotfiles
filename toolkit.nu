@@ -237,7 +237,7 @@ export def fill-candidates [] {
 
 # List files in the repo that are not tracked in paths-default.csv
 export def cleanup-paths-not-in-csv [] {
-    let exist_paths = glob **/* --exclude [**/.git/** **/.jj/** toolkit.nu macos-fresh/* paths-default.csv README.md .gitignore CLAUDE.md .DS_Store] --no-dir
+    let exist_paths = glob **/* --exclude [**/.git/** **/.jj/** toolkit.nu macos-fresh/* paths-default.csv README.md .gitignore CLAUDE.md .DS_Store .claude/settings.local.json paths-local.csv] --no-dir
 
     let paths_in_csv = open-configs | get path-in-repo
 
