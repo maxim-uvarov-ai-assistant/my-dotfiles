@@ -229,6 +229,9 @@ config.keys = {
 -- QUICK SELECT PATTERNS
 -- ============================================================================
 local quick_select_patterns = {
+  -- jj change IDs (use k-z alphabet to avoid forming words)
+  "\\b[k-z]{8,12}\\b",
+
   -- Nushell error paths (like ╭─[/path/to/file.nu:1946:63])
   "─\\[(.*\\:\\d+\\:\\d+)\\]",
 
