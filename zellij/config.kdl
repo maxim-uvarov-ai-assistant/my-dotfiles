@@ -215,7 +215,7 @@ keybinds clear-defaults=true {
         }
 
         bind "Super e" {
-            Run "/Users/user/.config/zellij/todo-hx.nu" {
+            Run "/Users/user/.config/zellij/todo-nu/todo-hx.nu" {
                 close_on_exit true
 //                cwd "tasks"
                 name "new-todo"
