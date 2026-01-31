@@ -189,11 +189,7 @@ export def fill-candidates [] {
     | where {|i| $i.full-path | path exists }
     | upsert path-type {|i| $i.full-path | path type }
 
-    let $ignored_files = $ignored_paths
-    | where path-type == 'file'
-    | get full-path
-
-    let $ignored_folders = $ignored_paths
+    let ignored_folders = $ignored_paths
     | where path-type == 'dir'
     | get full-path
 
