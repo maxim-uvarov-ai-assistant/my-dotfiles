@@ -152,4 +152,4 @@ $env.TOPIARY_LANGUAGE_DIR = ($env.XDG_CONFIG_HOME | path join topiary languages)
 $env.EDITOR = 'hx'
 
 alias `:q` = exit
-alias vd = vd --config=$'($env.XDG_CONFIG_HOME)/visidata/config.py'
+alias vd = vd --config=($env.XDG_CONFIG_HOME | path join visidata config.py) # should be fixed in 3.5
