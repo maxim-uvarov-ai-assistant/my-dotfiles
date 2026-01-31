@@ -31,6 +31,19 @@ def has-uncommitted-changes [path: path] {
     ($status.stdout | str trim | is-not-empty)
 }
 
+# Check paths for uncommitted changes, print error if found. Returns true if dirty.
+def check-dirty-files [paths: table, field: string, context: string] {
+    let dirty = $paths | where { has-uncommitted-changes ($in | get $field) }
+    if ($dirty | is-not-empty) {
+        print $"(ansi red)Error: The following ($context) have uncommitted changes:(ansi reset)"
+        $dirty | get $field | each { print $"  ($in)" }
+        print $"\nCommit or stash changes first, or use --force to overwrite."
+        true
+    } else {
+        false
+    }
+}
+
 # Derive repo path from full machine path using convention:
 #   ~/.config/X/... → X/...
 #   ~/.X/...        → X/...
@@ -109,15 +122,7 @@ export def pull-from-machine [
     let paths = assemble-paths
     | where {|i| $i.full-path | path exists }
 
-    if not $force {
-        let dirty = $paths | where { has-uncommitted-changes $in.path-in-repo }
-        if ($dirty | is-not-empty) {
-            print $"(ansi red)Error: The following repo files have uncommitted changes:(ansi reset)"
-            $dirty | get path-in-repo | each { print $"  ($in)" }
-            print $"\nCommit or stash changes first, or use --force to overwrite."
-            return
-        }
-    }
+    if not $force and (check-dirty-files $paths path-in-repo "repo files") { return }
 
     $paths
     | group-by { $in.path-in-repo | path dirname }
@@ -137,15 +142,7 @@ export def push-to-machine [
     let paths = assemble-paths
     | where {|i| $i.path-in-repo | path exists }
 
-    if not $force {
-        let dirty = $paths | where { has-uncommitted-changes $in.full-path }
-        if ($dirty | is-not-empty) {
-            print $"(ansi red)Error: The following destination files have uncommitted changes:(ansi reset)"
-            $dirty | get full-path | each { print $"  ($in)" }
-            print $"\nCommit or stash changes first, or use --force to overwrite."
-            return
-        }
-    }
+    if not $force and (check-dirty-files $paths full-path "destination files") { return }
 
     $paths
     | group-by { $in.full-path | path dirname }
