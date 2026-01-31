@@ -183,7 +183,7 @@ export def fill-candidates [] {
     let local_configs = open-local-configs
 
     let ignored_paths = $local_configs
-    | where status? in ['ignore']
+    | where status? == 'ignore'
     | where {|i| $i.full-path | path exists }
     | upsert path-type {|i| $i.full-path | path type }
 
