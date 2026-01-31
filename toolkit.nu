@@ -48,18 +48,37 @@ def derive-repo-path [fullpath: string] {
     }
 }
 
+# Extract static prefix from glob pattern (everything before first glob char)
+def glob-base [pattern: string] {
+    $pattern | str replace -r '[\*\?\[\{].*$' ''
+}
+
 # Read paths-default.csv, expand globs, and derive repo paths
 def open-configs [] {
     open paths-default.csv
     | get full-path
     | each {|pattern|
         let expanded = $pattern | path expand --no-symlink
-        # Check if it's a glob pattern
-        if ($pattern =~ '\*') {
-            glob $expanded --no-dir | each {|file| {full-path: $file path-in-repo: (derive-repo-path $file)} }
-        } else {
-            [{full-path: $expanded path-in-repo: (derive-repo-path $expanded)}]
+        if ($pattern !~ '[\*\?\[\{]') {
+            return [{full-path: $expanded path-in-repo: (derive-repo-path $expanded)}]
         }
+
+        let repo_pattern = derive-repo-path $expanded
+        let machine_base = glob-base $expanded
+        let repo_base = glob-base $repo_pattern
+
+        # Glob from machine (for pull) and repo (for push when machine dir missing)
+        let from_machine = glob $expanded --no-dir
+        | each {|f| {full-path: $f path-in-repo: (derive-repo-path $f)} }
+
+        let from_repo = glob $repo_pattern --no-dir
+        | each {|f|
+            let repo_path = $f | path relative-to (pwd)
+            let rel = $repo_path | path relative-to $repo_base
+            {path-in-repo: $repo_path full-path: ($machine_base | path join $rel)}
+        }
+
+        $from_machine | append $from_repo | uniq-by path-in-repo
     }
     | flatten
 }
