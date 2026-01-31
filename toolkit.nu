@@ -8,11 +8,9 @@
 #
 # Commands:
 #   pull-from-machine        - Copy configs from machine into repo
-#   push-to-machine          - Copy configs from repo to machine
-#   preview-push-to-machine  - Show diff of what push would change
+#   push-to-machine          - Copy configs from repo to machine (--dry-run for preview)
 #   fill-candidates          - Find new config files to potentially track
 #   cleanup-paths-not-in-csv - List repo files not tracked in CSV
-#   migrate-csv              - Convert old two-column CSV to new single-column format
 
 export def main [] { }
 
@@ -132,35 +130,10 @@ export def pull-from-machine [
     | each { cp $in.full-path $in.path-in-repo }
 }
 
-# Copy config files from the repository to the local machine
-export def push-to-machine [
-    --create-dirs # in case of missing directories - create them in place
-    --force # overwrite files with uncommitted changes
-] {
-    let paths = assemble-paths
-    | where {|i| $i.path-in-repo | path exists }
-
-    if not $force and (check-dirty-files $paths full-path "destination files") { return }
-
-    $paths
-    | group-by { $in.full-path | path dirname }
-    | items {|dirname v|
-        if ($dirname | path exists) { $v } else {
-            if $create_dirs { mkdir $dirname; $v }
-        }
-    }
-    | compact
-    | flatten
-    | each { cp $in.path-in-repo $in.full-path }
-}
-
-# Show a diff preview of what push-to-machine would change
-export def preview-push-to-machine [] {
-    assemble-paths
-    | where {|i| $i.path-in-repo | path exists }
-    | each {|row|
+# Show diff preview for a list of paths (repo → machine)
+def show-push-diff [paths: table] {
+    $paths | each {|row|
         if ($row.full-path | path exists) {
-            # Shows what will change: diff current-local new-from-repo
             let diff = ^git diff --no-index $row.full-path $row.path-in-repo | complete
             if ($diff.stdout | is-not-empty) {
                 print $"\n=== ($row.full-path) ==="
@@ -174,6 +147,31 @@ export def preview-push-to-machine [] {
             }
         }
     }
+}
+
+# Copy config files from the repository to the local machine
+export def push-to-machine [
+    --create-dirs # in case of missing directories - create them in place
+    --force # overwrite files with uncommitted changes
+    --dry-run # show diff of what would change without copying
+] {
+    let paths = assemble-paths
+    | where {|i| $i.path-in-repo | path exists }
+
+    if $dry_run { show-push-diff $paths; return }
+
+    if not $force and (check-dirty-files $paths full-path "destination files") { return }
+
+    $paths
+    | group-by { $in.full-path | path dirname }
+    | items {|dirname v|
+        if ($dirname | path exists) { $v } else {
+            if $create_dirs { mkdir $dirname; $v }
+        }
+    }
+    | compact
+    | flatten
+    | each { cp $in.path-in-repo $in.full-path }
 }
 
 # Scan tracked directories for new config files and update paths-local.csv
