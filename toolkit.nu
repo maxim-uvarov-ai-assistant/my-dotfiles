@@ -116,7 +116,6 @@ def assemble-paths [] {
 
 # Copy config files from the local machine into the repository
 export def pull-from-machine [
-    --check-local-files-exist
     --force # overwrite files with uncommitted changes
 ] {
     let paths = assemble-paths
