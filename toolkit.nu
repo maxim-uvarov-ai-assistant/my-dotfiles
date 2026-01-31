@@ -128,7 +128,6 @@ export def pull-from-machine [
     | items {|dirname v|
         if ($dirname | path exists) { $v } else { mkdir $dirname; $v }
     }
-    | compact
     | flatten
     | each { cp $in.full-path $in.path-in-repo }
 }
