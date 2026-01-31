@@ -23,12 +23,8 @@ BASE_REV="${ARGUMENTS:-main}"
 
 - jj repository: !`jj workspace root 2>/dev/null && echo "Yes" || echo "No"`
 - Current revision: !`jj log -r @ --no-graph --template 'change_id.short() ++ " " ++ description.first_line()' 2>/dev/null`
-- Base revision: !`echo ${BASE_REV:-main}`
+- Base revision: `$ARGUMENTS` (default: main)
 - Working copy clean: !`jj diff --stat 2>/dev/null | grep -q . && echo "Has changes" || echo "Clean"`
-- Unpublished commits: !`jj log -r "${BASE_REV:-main}..@-" --no-graph --template 'change_id.short() ++ "\n"' 2>/dev/null | grep -c . || echo "0"`
-
-### Recent Unpublished Commits
-!`jj log -r "${BASE_REV:-main}..@-" --template 'change_id.short() ++ " | " ++ author.email() ++ " | " ++ description.first_line() ++ "\n"' 2>/dev/null || echo "No unpublished commits"`
 
 ## Task
 

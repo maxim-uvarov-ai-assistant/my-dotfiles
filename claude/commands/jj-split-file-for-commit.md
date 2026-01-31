@@ -17,7 +17,7 @@ Split unrelated changes in **one file** into separate logical commits.
 ### Workflow
 
 1. **Analyze the changes**
-   - Run `jj diff <file>` to see all changes in the file
+   - Run `jj diff --git <file>` to see all changes in the file
    - Identify logical groups (e.g., "refactor" vs "new feature" vs "bugfix")
    - Plan how many commits and what each will contain
 
@@ -41,7 +41,7 @@ File has: typo fix + new function + reformatting
 
 ```
 # Step 1: See changes
-jj diff src/utils.ts
+jj diff --git src/utils.ts
 
 # Step 2: Save current content (using Read tool)
 
