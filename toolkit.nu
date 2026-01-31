@@ -98,9 +98,9 @@ def open-configs [] {
 
 # Read paths-local.csv if it exists, otherwise return empty list
 def open-local-configs [] {
-    'paths-local.csv'
-    | if ($in | path exists) { open } else { [] }
-    | update full-path { path expand --no-symlink }
+    if ('paths-local.csv' | path exists) {
+        open paths-local.csv | update full-path { path expand --no-symlink }
+    } else { [] }
 }
 
 # Merge local and default configs, applying ignore/update status and deduplication
