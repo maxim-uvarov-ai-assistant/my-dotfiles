@@ -31,10 +31,7 @@ Extract:
 
 ### Stage 2: Check and update status
 
-Check current status:
-```bash
-grep "^status:" "$ARGUMENTS" | awk '{print $2}'
-```
+Check current status from the content read in Stage 1.
 
 If status is already "in_progress":
 - Ask user for confirmation to continue (task may be running elsewhere)
@@ -99,7 +96,7 @@ Todo reference: $ARGUMENTS"
 ## Final report
 
 ```markdown
-# ✅ Todo task completed
+# Todo task completed
 
 **File:** $ARGUMENTS
 **Status:** completed
@@ -130,12 +127,14 @@ Todo reference: $ARGUMENTS"
 
 ### Rollback on failure
 
+If task cannot proceed and changes should be discarded:
 ```bash
-# Restore todo file
 git restore "$ARGUMENTS"
+```
 
-# Update status back to draft
-Edit: status: draft
+Or if partial progress should be kept, update status:
+```yaml
+status: draft
 ```
 
 ## Status transitions

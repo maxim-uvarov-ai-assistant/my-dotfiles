@@ -1,5 +1,5 @@
 ---
-allowed-tools: Bash(date:*), Bash(ls:*), Bash(echo:*), Bash(grep:*), Bash(git add:*), Bash(git commit:*), Bash(git mv:*), Write, Glob, Read
+allowed-tools: Bash(date:*), Bash(ls:*), Bash(git add:*), Bash(git commit:*), Bash(git mv:*), Write, Glob, Read
 description: Create new or update existing todo file
 argument-hint: <task description> or @path/to/todo.md
 ---
@@ -25,7 +25,6 @@ Working with todo files - creating new or updating existing:
 ## Context
 
 - Current date and time: !`date +%Y%m%d-%H%M`
-- Today's date: !`date +%Y%m%d`
 - Todo rules: @todo/CLAUDE.md
 
 ## Task
@@ -48,12 +47,7 @@ Working with todo files - creating new or updating existing:
    - **For creation**: always in `todo/` folder
    - **IMPORTANT**: Todo files are NOT moved elsewhere. Link to code is managed through frontmatter field `related_files`
 
-3. **Filename rules**:
-
-   - New files: `YYYYMMDD-HHMM-short_title.md` (MANDATORY with short_title)
-   - Files without short_title (`YYYYMMDD-HHMM.md`) → MUST add via `git mv`
-
-4. **Create/update todo file**:
+3. **Create/update todo file**:
 
    **For new file** use structure:
 
@@ -100,7 +94,7 @@ Working with todo files - creating new or updating existing:
    - Block "Task from user (original)" - PROTECTED, do not modify
    - Preserve change history (if exists)
 
-5. **Git operations**:
+4. **Git operations**:
 
    Add file to git and create commit with **MANDATORY** reference to todo file:
 
