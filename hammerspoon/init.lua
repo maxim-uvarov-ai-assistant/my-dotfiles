@@ -140,9 +140,12 @@ KeyEventListener = hs.eventtap.new(events, function(event)
   -- Check if the keyboard event includes the desired modifier key to remap
   -- If so, update the event's modifier flags to use hyper key modifiers
   if flags & originalKeyMask ~= 0 then
-    -- Rewrite Right‑Option into full hyper modifiers
-    event:rawFlags(hyperKeyMask)
-    -- Let the modified event continue so hs.hotkey receives it
+    -- Only remap to hyper when no other modifiers (alt, ctrl, shift) are held,
+    -- so combinations like right_cmd+alt+esc pass through normally
+    local otherMods = flagMasks["alternate"] | flagMasks["control"] | flagMasks["shift"]
+    if (flags & otherMods) == 0 then
+      event:rawFlags(hyperKeyMask)
+    end
   end
   return false   -- propagate every event
 end):start()
