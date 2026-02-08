@@ -21,11 +21,26 @@ description: Load this skill when editing, writing, or reviewing any .nu file. P
 
 ## Agent Tip: Syntax Checking
 
-```nushell
-nu --ide-check 10 file.nu | lines | each { from json }
+```bash
+nu --ide-check 10 file.nu | nu --stdin -c 'lines | each { from json } | where type == "diagnostic" | to json --raw'
 ```
 
-Returns structured JSON with error spans. See [debugging.md](debugging.md) for parsing diagnostics.
+Runs from bash (as agents do). `--stdin` is required for the second `nu` to read piped input. See [debugging.md](debugging.md) for parsing diagnostics inside nushell.
+
+---
+
+## Conciseness for Advanced Users
+
+Write code that an experienced nushell user can quickly apprehend. Leverage implicit features:
+
+| Verbose | Concise | Why |
+|---------|---------|-----|
+| `update field {\|row\| $row.field \| str upcase}` | `update field { str upcase }` | Closure receives field value directly |
+| `each {\|x\| $x \| str trim}` | `each { str trim }` | `$in` implicit, pipeline flows |
+| `where {\|row\| $row.status == "active"}` | `where status == "active"` | `where` has field shorthand |
+| `$data \| each { $in \| process }` | `$data \| each { process }` | `$in` passed automatically to first command |
+
+**Principle:** If an advanced user knows how `update`, `each`, `where` work, they shouldn't need to parse redundant variable declarations.
 
 ---
 
@@ -68,6 +83,50 @@ Use `scan` for sequences with state: `use std/iter scan`
 
 ---
 
+## Script CLI Pattern
+
+For toolkit-style scripts with subcommands (like `nu toolkit.nu test`):
+
+```nushell
+# toolkit.nu
+export def main [] { }  # Entry point (required, even if empty)
+
+export def 'main test' [--json] {
+    # nu toolkit.nu test
+}
+
+export def 'main build' [] {
+    # nu toolkit.nu build
+}
+```
+
+**Key points:**
+- `def main []` — entry point when running `nu script.nu`
+- `def 'main subcommand' []` — defines `nu script.nu subcommand`
+- Must define `main` for subcommands to be accessible
+- Use `export def` if script is also used as a module
+
+**Execution differs between script mode and module mode:**
+
+```bash
+# Script mode: `main` is stripped, subcommands are top-level
+nu toolkit.nu           # runs main
+nu toolkit.nu test      # runs 'main test'
+nu toolkit.nu test --json  # with flags
+```
+
+```nushell
+# Module mode: `main` stays in the command name
+use toolkit.nu
+toolkit                 # runs main
+toolkit main test       # runs 'main test' — note `main` is required
+toolkit main test --json
+```
+
+→ See [Nushell Scripts docs](https://www.nushell.sh/book/scripts.html#subcommands)
+
+---
+
 ## Quick Reference
 
 ### Do
@@ -107,6 +166,7 @@ Use `scan` for sequences with state: `use std/iter scan`
 
 ## Formatting Summary
 
+- Run `topiary format <file>` when available — it is the canonical formatter
 - Empty blocks: `{ }` with space
 - Closures: `{ expr }` with spaces
 - Flags: `--flag (-f)` with space
