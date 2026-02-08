@@ -199,6 +199,9 @@ config.keys = {
   { key = 'n', mods = 'CMD|SHIFT',  action = wezterm.action.SpawnCommandInNewWindow {
     args = { nu_path or 'nu' }
   }},
+  { key = 'n', mods = 'ALT|CMD',  action = wezterm.action.SpawnCommandInNewWindow {
+    args = { 'zsh' }
+  }},
   -- cmd+shift+o
   { key = 'o', mods = 'CMD|SHIFT',  action = wezterm.action.SendString '\x1b[111;10u' },
   -- cmd+shift+p
